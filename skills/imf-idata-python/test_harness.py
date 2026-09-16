@@ -47,6 +47,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import types
 from dataclasses import dataclass, field
@@ -206,12 +207,40 @@ class AnthropicAdapter:
 
 
 class OpenAIAdapter:
-    def __init__(self):
+    def __init__(self, azure: bool = False):
         try:
             import openai
         except ImportError as exc:
-            raise SystemExit("pip install openai  (and set OPENAI_API_KEY)") from exc
-        self.client = openai.OpenAI()
+            raise SystemExit("pip install openai") from exc
+
+        if azure:
+            endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
+            api_key = os.environ.get("AZURE_OPENAI_API_KEY")
+            api_version = os.environ.get("AZURE_OPENAI_API_VERSION")
+            missing = [
+                name
+                for name, val in [
+                    ("AZURE_OPENAI_ENDPOINT", endpoint),
+                    ("AZURE_OPENAI_API_KEY", api_key),
+                    ("AZURE_OPENAI_API_VERSION", api_version),
+                ]
+                if not val
+            ]
+            if missing:
+                raise SystemExit(
+                    "Azure OpenAI requires these environment variables, missing: "
+                    f"{', '.join(missing)}. Get the exact endpoint URL, key, and API version "
+                    "from whoever provisioned your company's Azure OpenAI access — don't guess "
+                    "them. --model must then be the Azure *deployment name* (set by your IT "
+                    "team), not necessarily the model's public name."
+                )
+            self.client = openai.AzureOpenAI(
+                azure_endpoint=endpoint, api_key=api_key, api_version=api_version
+            )
+        else:
+            if not os.environ.get("OPENAI_API_KEY"):
+                raise SystemExit("Set OPENAI_API_KEY (or pass --azure to use Azure OpenAI instead).")
+            self.client = openai.OpenAI()
 
     @staticmethod
     def to_tools(tools: list[dict]) -> list[dict]:
@@ -249,7 +278,12 @@ class OpenAIAdapter:
             messages.append({"role": "tool", "tool_call_id": tc.id, "content": json.dumps(result)})
 
 
-ADAPTERS = {"anthropic": AnthropicAdapter, "openai": OpenAIAdapter}
+def build_adapter(provider: str, azure: bool = False):
+    if provider == "anthropic":
+        return AnthropicAdapter()
+    if provider == "openai":
+        return OpenAIAdapter(azure=azure)
+    raise ValueError(f"unknown provider: {provider}")
 
 
 def summarize_result(result: dict) -> str:
@@ -261,8 +295,10 @@ def summarize_result(result: dict) -> str:
     return f"ERROR [{result['error']['type']}]: {result['error']['message']}"
 
 
-def run_agent(provider: str, model: str, user_message: str, system_prompt: str, max_turns: int) -> str:
-    adapter = ADAPTERS[provider]()
+def run_agent(
+    provider: str, model: str, user_message: str, system_prompt: str, max_turns: int, azure: bool = False
+) -> str:
+    adapter = build_adapter(provider, azure=azure)
     if provider == "openai":
         messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_message}]
     else:
@@ -297,8 +333,25 @@ def build_system_prompt(include_reference: bool) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("message", help="user request, e.g. 'fiscal deficit data for US from 2020 to 2026'")
-    parser.add_argument("--provider", choices=list(ADAPTERS), default="anthropic")
-    parser.add_argument("--model", required=True, help="model name (Anthropic) or model/deployment name (OpenAI)")
+    parser.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
+    parser.add_argument(
+        "--azure",
+        action="store_true",
+        help=(
+            "with --provider openai, use Azure OpenAI instead of the plain OpenAI platform API. "
+            "Requires AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_API_VERSION env "
+            "vars, and --model must be the Azure *deployment name* set by your IT team."
+        ),
+    )
+    parser.add_argument(
+        "--model",
+        required=True,
+        help=(
+            "Anthropic: model name (e.g. claude-sonnet-5). Plain OpenAI: model name (e.g. "
+            "gpt-4o). Azure OpenAI (--azure): the deployment name, NOT necessarily the model's "
+            "public name — confirm the exact string with whoever provisioned access."
+        ),
+    )
     parser.add_argument("--include-reference", action="store_true")
     parser.add_argument("--max-turns", type=int, default=8)
     mode = parser.add_mutually_exclusive_group()
@@ -313,7 +366,9 @@ def main() -> None:
         install_mock_idata_utilities()
 
     system_prompt = build_system_prompt(args.include_reference)
-    final_text = run_agent(args.provider, args.model, args.message, system_prompt, args.max_turns)
+    final_text = run_agent(
+        args.provider, args.model, args.message, system_prompt, args.max_turns, azure=args.azure
+    )
     print(f"\n=== final answer ===\n{final_text}")
 
 
