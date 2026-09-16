@@ -1,0 +1,15 @@
+# Secrets — never commit these
+.env
+.env.*
+*/.IdentityService/
+**/imf_openai_cache.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.venv_test/
+*.egg-info/
+
+# OS
+.DS_Store

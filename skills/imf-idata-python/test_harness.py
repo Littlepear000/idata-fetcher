@@ -207,7 +207,13 @@ class AnthropicAdapter:
 
 
 class OpenAIAdapter:
-    def __init__(self, azure: bool = False):
+    def __init__(self, azure: bool = False, client=None):
+        if client is not None:
+            # Pre-built client (e.g. from an internal gateway helper) — use as-is, skip the
+            # plain-OpenAI/Azure setup below entirely.
+            self.client = client
+            return
+
         try:
             import openai
         except ImportError as exc:
@@ -278,10 +284,20 @@ class OpenAIAdapter:
             messages.append({"role": "tool", "tool_call_id": tc.id, "content": json.dumps(result)})
 
 
-def build_adapter(provider: str, azure: bool = False):
+def build_adapter(provider: str, azure: bool = False, gateway: bool = False):
     if provider == "anthropic":
         return AnthropicAdapter()
     if provider == "openai":
+        if gateway:
+            try:
+                from imf_openai_helper import get_client
+            except ImportError as exc:
+                raise SystemExit(
+                    "--gateway needs imf_openai_helper.py in this folder (copy it from your "
+                    "other project, unmodified) plus its .env file, and `pip install msal "
+                    "python-dotenv openai`."
+                ) from exc
+            return OpenAIAdapter(client=get_client())
         return OpenAIAdapter(azure=azure)
     raise ValueError(f"unknown provider: {provider}")
 
@@ -296,9 +312,15 @@ def summarize_result(result: dict) -> str:
 
 
 def run_agent(
-    provider: str, model: str, user_message: str, system_prompt: str, max_turns: int, azure: bool = False
+    provider: str,
+    model: str,
+    user_message: str,
+    system_prompt: str,
+    max_turns: int,
+    azure: bool = False,
+    gateway: bool = False,
 ) -> str:
-    adapter = build_adapter(provider, azure=azure)
+    adapter = build_adapter(provider, azure=azure, gateway=gateway)
     if provider == "openai":
         messages = [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_message}]
     else:
@@ -334,13 +356,25 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("message", help="user request, e.g. 'fiscal deficit data for US from 2020 to 2026'")
     parser.add_argument("--provider", choices=["anthropic", "openai"], default="anthropic")
-    parser.add_argument(
+    auth_mode = parser.add_mutually_exclusive_group()
+    auth_mode.add_argument(
         "--azure",
         action="store_true",
         help=(
-            "with --provider openai, use Azure OpenAI instead of the plain OpenAI platform API. "
-            "Requires AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_API_VERSION env "
-            "vars, and --model must be the Azure *deployment name* set by your IT team."
+            "with --provider openai, use Azure OpenAI directly instead of the plain OpenAI "
+            "platform API. Requires AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, "
+            "AZURE_OPENAI_API_VERSION env vars, and --model must be the Azure *deployment name* "
+            "set by your IT team."
+        ),
+    )
+    auth_mode.add_argument(
+        "--gateway",
+        action="store_true",
+        help=(
+            "with --provider openai, go through your organization's internal API gateway using "
+            "imf_openai_helper.py (must be copied, unmodified, into this folder) plus its .env "
+            "file — this is the IMF setup with CLIENT_ID/TENANT_ID/API_KEY/API_URL and MSAL "
+            "browser login. --model must be whatever model/deployment name that gateway expects."
         ),
     )
     parser.add_argument(
@@ -348,8 +382,8 @@ def main() -> None:
         required=True,
         help=(
             "Anthropic: model name (e.g. claude-sonnet-5). Plain OpenAI: model name (e.g. "
-            "gpt-4o). Azure OpenAI (--azure): the deployment name, NOT necessarily the model's "
-            "public name — confirm the exact string with whoever provisioned access."
+            "gpt-4o). Azure OpenAI (--azure) or gateway (--gateway): the deployment/model name "
+            "your provider expects — confirm the exact string, don't guess."
         ),
     )
     parser.add_argument("--include-reference", action="store_true")
@@ -367,7 +401,13 @@ def main() -> None:
 
     system_prompt = build_system_prompt(args.include_reference)
     final_text = run_agent(
-        args.provider, args.model, args.message, system_prompt, args.max_turns, azure=args.azure
+        args.provider,
+        args.model,
+        args.message,
+        system_prompt,
+        args.max_turns,
+        azure=args.azure,
+        gateway=args.gateway,
     )
     print(f"\n=== final answer ===\n{final_text}")
 
