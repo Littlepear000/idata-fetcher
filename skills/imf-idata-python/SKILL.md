@@ -1,195 +1,153 @@
 ---
 name: imf-idata-python
-description: Rules and workflow for downloading IMF economic/financial data from the iData platform in Python, using the internal imf_datatools package (get_databases, get_dimensions, get_dimension_values, get_idata_data, get_idata_metadata). Use this whenever an agent needs to fetch, query, or download data (e.g. WEO, CPI, IFS) from IMF's iData system via Python — not for Stata/R, and not for other datatools resources (DMXe, Haver, SQL, World Bank, BIS, EcOS).
+description: Use when the user wants to fetch, pull, download, or load an IMF data series (e.g. WEO, CPI, IFS) from the iData platform in Python. Covers database/dimension discovery, ambiguity resolution, key construction, and wide/long CSV/Excel output via the pre-built fetch_idata.py utility.
 ---
 
-# IMF iData Download Skill (Python)
+# IMF iData (Python)
 
-## Purpose and scope
+Fetch IMF time series from iData through the pre-built `scripts/fetch_idata.py` utility.
 
-This skill covers **one thing only**: downloading data from the IMF **iData** platform in **Python**,
-using the `imf_datatools` package. iData is the Fund-wide data system (since 2025) that replaced
-EcOS, EDI, data.imf.org, and Data Mapper.
+## Runtime
 
-Out of scope for this skill (do not use these unless the task explicitly asks for them): Stata/R
-usage, DMXe file read/write, Haver, SQL, World Bank, BIS, and EcOS-to-iData mapping. See
-`references/api_reference.md` if one of those is ever needed later.
+Use the company Python on IMF Windows; do not create or use virtual/Conda environments.
+Before executing the utility, read the [runtime contract](references/runtime.md) for
+installed-skill paths, interpreter selection, and installation policy. Resolve scripts from the
+loaded skill directory, not the user's working directory.
 
-## The golden rule: discover, don't guess
+## Never write a new script
 
-**Never hand-write a database name, dimension name, or dimension value from memory or intuition.**
-iData databases each have their own, different set of dimensions (some have 3, some have 5+), and
-codes are not always intuitive (e.g. countries are ISO3, but country *groups* are codes like `G163`
-for the Euro Area). Wrong guesses silently return empty results rather than raising a clear error.
+A pre-built fetch utility already exists (`scripts/fetch_idata.py`). Never write ad-hoc Python
+to explore or fetch iData data — always invoke this script via Bash.
 
-Always resolve unknowns through the API first, in this order:
+## Private data access
 
-1. `get_databases()` → find the exact database id (e.g. `IMF.STA:CPI`, `IMF.RES.WEO:WEO_LIVE`).
-2. `get_dimensions(db)` → find out how many dimensions the database has, their mnemonics, and their
-   order. **Do not assume a database follows `country.indicator.frequency`** — that only happens to
-   be true for WEO_LIVE. CPI, for example, has 5 dimensions.
-3. `get_dimension_values(db, dimension)` → find the valid codes for each dimension before using them
-   in a query key.
+`fetch_idata.py` sets `idata_utilities.PRIVATE = True` automatically at import time, every run —
+you don't need to do anything extra to access restricted/internal databases.
 
-Only after these three are known should `get_idata_data()` be called.
+## Workflow
 
-## Standard workflow
+**Fast path:** if the database, complete dimension order, every dimension value, and the time
+range are already confirmed (e.g. repeating an earlier query), skip straight to
+[Fetch](#6-fetch) — output format never needs confirming, see [Step 5](#5-output-format).
 
-```python
-from imf_datatools import idata_utilities
+### 1. Find the database
 
-# 1. Find the database
-dbs = idata_utilities.get_databases(keyword='CPI')          # search by keyword
-db = 'IMF.STA:CPI'                                           # exact id, once confirmed
+If you don't already know the exact database id, search:
 
-# 2. Find the dimensions and their order (do this once per database)
-dims = idata_utilities.get_dimensions(db)
-# -> e.g. COUNTRY(0), INDEX_TYPE(1), COICOP_1999(2), TYPE_OF_TRANSFORMATION(3), FREQUENCY(4)
-
-# 3. Find valid codes for each dimension you need to filter on
-countries = idata_utilities.get_dimension_values(db, 'COUNTRY')
-countries_subset = idata_utilities.get_dimension_values(db, 'COUNTRY', keyword='republic')
-
-# 4. Build the query key: one value per dimension, in dimension order, joined by '.'
-#    - '+' between multiple values within a dimension
-#    - leave a dimension blank (nothing between the dots) to mean "all values"
-key = 'USA+JPN.CPI._T..M'   # TYPE_OF_TRANSFORMATION left open -> all transformations returned
-
-# 5. Download
-df = idata_utilities.get_idata_data(db, key=key, start='2015', end='2024-12')
+```bash
+python "<SKILL_DIR>/scripts/fetch_idata.py" --get-databases "<keyword>"
 ```
 
-`import imf_datatools; imf_datatools.get_idata_data(...)` (top-level) and
-`from imf_datatools import idata_utilities; idata_utilities.get_idata_data(...)` (submodule) are
-equivalent — the top-level package re-exports the same functions. Either style is fine; be
-consistent within one script.
+Never guess a database id from memory or from general economics naming conventions.
 
-## Query key syntax
+### 2. Read the dimensions
 
-| Symbol | Meaning |
+```bash
+python "<SKILL_DIR>/scripts/fetch_idata.py" --db "<database_id>" --get-dimensions
+```
+
+This prints the dimension names in the exact order they must appear in the key. **Do not
+assume a database has the same dimensions as another one** — e.g. WEO_LIVE has 3
+(`COUNTRY`/`INDICATOR`/`FREQUENCY`), CPI has 5. Always use the exact names this prints — don't
+assume names like `COUNTRY` or `FREQUENCY`; some databases use `REF_AREA`, `SERIES`, `TICKER`,
+etc.
+
+### 3. Resolve each dimension value
+
+For each dimension you need to filter on — including the indicator/concept the user asked
+about — check its valid values before using it in a key:
+
+```bash
+python "<SKILL_DIR>/scripts/fetch_idata.py" --db "<database_id>" --get-dimension-values "<DIM>" --keyword "<concept>"
+```
+
+**Auto-resolve vs. ask-user rules:**
+
+| Situation | Action |
 |---|---|
-| `.` | Separates dimensions, in the exact order returned by `get_dimensions(db)` |
-| `+` | Multiple values within one dimension, e.g. `AUS+BEN` |
-| *(empty)* | Leave a dimension open — matches all its values, e.g. `.NGDP.` |
+| Dimension has exactly one valid value | Auto-resolve silently; use it without asking |
+| User already specified the dimension | Use their value; validate it against `--get-dimension-values` |
+| Multiple values and user didn't specify | Ask the user — don't list all options upfront |
+| `start`/`end` not specified | **Always ask** — never assume or default |
 
-The number of dot-separated segments **must match the number of dimensions of that specific
-database** — confirm with `get_dimensions(db)` first; never reuse the 3-segment
-`country.indicator.freq` shape assumed for WEO across other databases.
+If the user asks "what options are there for X?", run `--get-dimension-values <DIM>` and present
+the results in readable form (e.g. "Annual (A), Quarterly (Q), Monthly (M)"), not as a raw code
+dump.
 
-## Output shape options (`get_idata_data`)
+**Never guess or hardcode a dimension value.** If a keyword search on the indicator/concept
+dimension returns several plausible candidates (e.g. "fiscal deficit" matching both an overall
+balance and a primary balance indicator), show the candidates with a short distinguishing note
+for each and ask the user to pick — never pick one silently.
 
-- Default (wide): one column per resolved series, dates as the index.
-- `longformat=True`: one row per (dimension values × date), with an `OBS_VALUE` column. Good for
-  tidy/long downstream processing or when the query resolves to many series.
-- `panel=<dimension>`: rows grouped by that dimension and `dates`, remaining dimensions collapsed
-  into column names. Mutually exclusive with `longformat=True`.
-- `start=` / `end=`: strings like `'2020'`, `'2020-01'`, `'2020Q2'`. **Gotcha:** for `end`, only a
-  full-period date (e.g. `'2020-05'` or `'2020-05-31'`) includes that period for monthly/lower
-  frequencies — `end='2020-05-30'` will *not* include May 2020.
+**Country groups:** if the user names a WEO group instead of specific countries (e.g. "advanced
+economies", "G20"), expand it first:
 
-## Authentication and session rules
-
-- Public iData data does not require special setup beyond installation.
-- **Internal/restricted data** (e.g. `WEO_LIVE` before publication) requires setting
-  `idata_utilities.PRIVATE = True` before calling any data-retrieval function, in the same session.
-- Accessing internal data triggers a **browser-based SSO authentication popup** ("click IMF User").
-  This is an interactive, human-in-the-loop step — **an autonomous agent cannot complete it on its
-  own**. When a task needs `PRIVATE = True` data:
-  1. Check whether a valid authenticated session already exists (e.g. a prior successful call in
-     the same run/session).
-  2. If not, stop and tell the user a browser window needs to be completed for authentication
-     before the download can proceed — do not silently retry or fabricate data.
-- Each authenticated session is valid for **about one hour**. After that, calls will need
-  re-authentication (another browser popup). Long-running or scheduled downloads of internal data
-  should account for this — batch calls within a session window rather than assuming an unattended
-  multi-hour run will keep working.
-
-## Caching / refresh behavior
-
-`get_databases()`, `get_dimensions()`, and `get_dimension_values()` cache their results in memory
-for the current Python session after the first call — repeated calls are free. Pass `refresh=True`
-only when you specifically need to pick up changes made upstream since the session started (e.g. a
-newly published database or a corrected dimension list); don't set it by default.
-
-## Error handling and troubleshooting
-
-- `imf_datatools` returns data **only if the user has access to it**; it does not grant or manage
-  permissions itself. If a call returns empty or `None` where data is expected, the most likely
-  causes, in order, are:
-  1. A dimension value or database id that doesn't actually exist for that database (re-verify with
-     `get_dimensions`/`get_dimension_values` rather than guessing again).
-  2. A permissions issue — the user's account doesn't have access to that (internal) resource.
-  3. For internal data, an expired or missing authentication session (see above).
-- Do not silently swallow an empty result and report success — surface it, and if it may be a
-  permissions issue, say so rather than guessing.
-- For persistent problems unrelated to the above, the human contact point is
-  `Datatools-Support@imf.org` / Econometric Support — an agent should surface this contact rather
-  than trying to work around it.
-
-## Do / don't checklist
-
-- **Do** call `get_databases` → `get_dimensions` → `get_dimension_values` before every new
-  database/query pattern the agent hasn't already resolved in this session.
-- **Do** reuse dimension/value lookups already done in-session instead of re-querying.
-- **Do** pick `longformat=True` when the result of a query is not naturally a single well-defined
-  table (e.g. an open dimension resolving to many series) and the caller needs tidy data.
-- **Do** stop and ask the user when internal (`PRIVATE=True`) data needs fresh authentication.
-- **Don't** invent database ids, dimension mnemonics, or dimension values from prior knowledge of
-  EcOS, WEO Excel files, or general economics naming conventions.
-- **Don't** assume every database has the same 3 dimensions as WEO_LIVE.
-- **Don't** treat an empty/`None` result as "no data exists" without checking permissions/dimension
-  validity first.
-- **Don't** reach for DMXe/Haver/SQL/World Bank/BIS/EcOS-mapping functions for this skill's tasks —
-  out of scope here (see `references/api_reference.md` if genuinely needed).
-
-## Worked example
-
-Annual GDP growth and CPI for Australia and Benin from WEO_LIVE (3-dimension database:
-`COUNTRY.INDICATOR.FREQUENCY`):
-
-```python
-from imf_datatools import idata_utilities
-
-idata_utilities.PRIVATE = True   # WEO_LIVE is internal; requires browser SSO the first time
-
-db = 'IMF.RES.WEO:WEO_LIVE'
-isocode = 'AUS+BEN'
-varlist = 'NGDP_RPCH+PCPI'
-freq = 'A'
-
-df = idata_utilities.get_idata_data(
-    db,
-    key=f'{isocode}.{varlist}.{freq}',
-    longformat=True,
-)
+```bash
+python "<SKILL_DIR>/scripts/fetch_idata.py" --expand-group "<name or group code>"
 ```
 
-Monthly CPI (all-items index) for the US and Japan from a 5-dimension database, leaving the
-transformation dimension open to get index level, month-over-month %, and year-over-year % at once:
+This doesn't need `--db`. It prints the matched group name/code and a `+`-joined list of ISO3
+codes — paste that list directly into the country dimension of your key. If the name matches
+more than one group, it prints the candidates instead of guessing; ask the user which one they
+meant. Never hand-write or guess a group's membership yourself.
 
-```python
-from imf_datatools import idata_utilities
+### 4. Build the key
 
-db = 'IMF.STA:CPI'
-dims = idata_utilities.get_dimensions(db)   # confirm dimension order/count first
-# COUNTRY(0), INDEX_TYPE(1), COICOP_1999(2), TYPE_OF_TRANSFORMATION(3), FREQUENCY(4)
+Dot-separated, one field per dimension, in the exact order from `--get-dimensions`:
 
-key = 'USA+JPN.CPI._T..M'   # TYPE_OF_TRANSFORMATION left open
-df = idata_utilities.get_idata_data(db, key=key)
+- `+` combines multiple values within one dimension: `USA+GBR.NGDP_RPCH.A`
+- A blank (consecutive dots) selects all values for that dimension: `.NGDP_RPCH.A`
+- The number of dot-separated fields must exactly match the number of dimensions — never add
+  or drop dots.
+
+### 5. Output format
+
+Don't ask the user to choose a format — default to **wide** layout as **CSV**
+(see [output formats](references/output-formats.md)) and generate the file. Only deviate if the
+user has stated a preference (e.g. "as Excel", "long format") — use theirs instead of the
+default, and reuse it for the rest of the conversation without asking again.
+
+### 6. Fetch
+
+```bash
+python "<SKILL_DIR>/scripts/fetch_idata.py" --db "<database_id>" --key "<dot.separated.key>" --start "<period>" --end "<period>" --output "<path>"
 ```
+
+Defaults to wide-format CSV. Add `--format long` for long layout, and/or `--excel` for `.xlsx`
+instead of `.csv`. Always pass `--output` with a path in the user's own workspace (see
+[runtime](references/runtime.md)), not this skill's installed directory.
+
+**Always use this script — never call `imf_datatools` directly or return raw SDK output.**
+
+For failures, diagnose from the printed error before retrying — don't wrap a call that already
+retries internally in another retry loop. Report a partial/warned result as incomplete rather
+than silently treating it as success.
+
+## Troubleshooting
+
+`fetch_idata.py` returns data only if the user has access to it — it never grants permissions.
+An empty/no-data result is usually one of:
+
+1. An invalid dimension value in the key — re-check with `--get-dimension-values`, don't just
+   retry the same key.
+2. A permissions issue with the specific database.
+3. For unusual/experimental databases, missing or incomplete metadata (scale/unit will be
+   blank — not fatal, but worth mentioning to the user).
+
+For problems installing or importing `imf_datatools` itself, see
+[runtime](references/runtime.md) and run `scripts/check_environment.py` before assuming the SDK
+is broken.
 
 ## Reference
 
-Full function signatures and parameters (`get_databases`, `get_dimensions`, `get_dimension_values`,
-`get_idata_data`, `get_idata_metadata`, country-info helpers, installation steps) are in
-`references/api_reference.md` — load it when a parameter's exact default or edge-case behavior is
-needed and this file doesn't already cover it.
+Full function signatures behind `fetch_idata.py` (`get_databases`, `get_dimensions`,
+`get_dimension_values`, `get_idata_data`, `get_idata_metadata`) are in
+[references/api_reference.md](references/api_reference.md) — load it when you need a
+parameter's exact default or an edge case this file doesn't cover.
 
 ## Sources
 
 - `documents/imf_datatools_doc.pdf` — "Documentation for the IMF datatools" (Datatools Team,
   2026-07-14), Chapter 3.2–3.3.
-- `documents/idata_codebook_v1.docx` — "Codebook to Extract Economic and Financial Data in Idata",
-  Python section (this is the source for the `PRIVATE` flag and the browser-auth/1-hour-session
-  behavior, which the PDF does not mention — treat as the more operational, install-and-auth-focused
-  of the two sources).
+- `documents/idata_codebook_v1.docx` — "Codebook to Extract Economic and Financial Data in
+  Idata", Python section.

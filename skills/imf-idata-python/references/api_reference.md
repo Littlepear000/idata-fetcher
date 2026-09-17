@@ -4,6 +4,11 @@ Detailed reference backing `../SKILL.md`. Only iData-related functions and Pytho
 covered; other datatools resources (DMXe, Haver, SQL, World Bank, BIS, EcOS mapping, R, Stata) are
 intentionally omitted since they are out of scope for this skill.
 
+**Note:** `../scripts/fetch_idata.py` is the supported way to call these functions — see
+`../SKILL.md`. This file documents the underlying `imf_datatools` functions it wraps, for when a
+parameter's exact default or an edge case isn't covered by the script's own `--help` or the
+workflow in `SKILL.md`.
+
 ## Installation (one-time, per machine)
 
 1. Install the latest Python from the Fund Software Center.
@@ -135,6 +140,14 @@ groups = imf_datatools.get_weo_country_groups()   # sheet "2. Country Groups" fr
 countryinfo = imf_datatools.get_weo_country_info()  # sheet "5. Group Dummies (iData)"
 ebv = imf_datatools.get_ebv_country_info()          # EBV + World Bank merged country info
 ```
+
+`../scripts/fetch_idata.py --expand-group "<name or code>"` wraps `get_weo_country_groups()` +
+`get_weo_country_info()` to turn a group name into a `+`-joined ISO3 list — see `../SKILL.md`.
+**Caveat:** its column-name detection (which column holds the group description, which holds
+ISO3 codes) was written defensively without being able to inspect a real
+`get_weo_country_info()`/`get_weo_country_groups()` result — verify against real output the
+first time this runs on an IMF-networked machine, and adjust the column-matching in
+`cmd_expand_group()` if the actual schema differs.
 
 All three accept `save=False`; pass `save=True` to also write the result to a local file.
 
