@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="8ec7b1c1-081a-4dcb-a1a5-db50edaf0327" name="Changes" comment="" />
+    <list default="true" id="9dd767e4-69b3-4b33-9d47-0bdad2e90a63" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/FP_knowledge_encoding_through_AI.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/FP Knowledge Encoding through AI.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -10,11 +17,23 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Littlepear000"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Littlepear000/idata-fetcher.git",
+    "accountId": "1777cb95-ce65-47a3-b9b2-782b923b5d22"
+  }
+}]]></component>
   <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6,
+  "associatedIndex": 3,
   "fromUser": false
 }]]></component>
-  <component name="ProjectId" id="3JQ97V9bIYLwUuFRPuv46gQfAIg" />
+  <component name="ProjectId" id="3JT3FabvyVXYwEfi0o0ZFvwg5fl" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -23,25 +42,26 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "master"
+    "git-widget-placeholder": "sl__skills__tools"
   }
 }]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-821f704e66d9-5bd6d13a2a75-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-262.9437.214" />
+        <option value="bundled-python-sdk-b63d5a1f7c97-b61e75351b1f-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-261.22158.340" />
       </set>
     </attachedChunks>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="8ec7b1c1-081a-4dcb-a1a5-db50edaf0327" name="Changes" comment="" />
-      <created>1789582257648</created>
+      <changelist id="9dd767e4-69b3-4b33-9d47-0bdad2e90a63" name="Changes" comment="" />
+      <created>1789671128026</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1789582257648</updated>
+      <updated>1789671128026</updated>
     </task>
     <servers />
   </component>
