@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 2 Analysis</title>
+<style>
+:root{
+  --bg:#f7f8f6; --surface:#fff; --fg:#1b2430; --muted:#5b6672; --line:#d6dbd4;
+  --accent:#0f6e73; --accent-soft:#dff1ef;
+  --ai:#6b4fa0; --ai-soft:#ece6f6; --prog:#0f6e73; --prog-soft:#dff1ef; --user:#a85f12; --user-soft:#fbeedd;
+  --ana:#3d5a80; --ana-soft:#e3ebf5; --new:#b3261e; --new-soft:#fbe4e2; --code-bg:#f0f2ee;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Segoe UI",Helvetica,Arial,sans-serif;font-size:16.5px;line-height:1.6;padding:0 16px 64px}
+main{max-width:960px;margin:0 auto}
+header{padding:48px 0 24px;border-bottom:1px solid var(--line);margin-bottom:32px}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.phases{display:flex;gap:8px;margin:14px 0 0;flex-wrap:wrap}
+.phases a,.phases span{font-size:14px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);text-decoration:none;color:var(--muted)}
+.phases span{background:var(--ana);border-color:var(--ana);color:#fff;font-weight:600}
+h1{font-size:34px;line-height:1.2;margin:8px 0 10px;font-weight:700}
+.lede{font-size:18px;color:var(--muted);margin:0;max-width:42em}
+h2{font-size:24px;margin:48px 0 10px;padding-top:8px;font-weight:700}
+h2 .n{color:var(--ana);margin-right:10px}
+h3{font-size:18px;margin:24px 0 6px}
+p{margin:0 0 12px;max-width:46em}
+ul,ol{margin:0 0 12px;padding-left:22px;max-width:46em}
+li{margin-bottom:4px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.55;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:0 0 14px}
+pre code{background:none;padding:0;overflow-wrap:normal}
+figure{margin:20px 0 24px}
+figure svg{max-width:100%;height:auto;display:block}
+figcaption{font-size:14px;color:var(--muted);margin-top:6px;max-width:46em}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:0 0 18px;background:var(--surface)}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+tr.grp td{background:var(--bg);font-weight:700;font-size:13.5px;color:var(--muted);letter-spacing:.03em}
+.tag{display:inline-block;font-size:12.5px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.tag.ai{background:var(--ai-soft);color:var(--ai)}
+.tag.prog{background:var(--prog-soft);color:var(--prog)}
+.tag.user{background:var(--user-soft);color:var(--user)}
+.tag.new{background:var(--new-soft);color:var(--new)}
+.tag.lang{background:var(--ana-soft);color:var(--ana)}
+.box{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 16px;border-radius:0 6px 6px 0;margin:16px 0;max-width:50em}
+.box.q{border-color:var(--user);background:var(--user-soft)}
+.box.warn{border-color:var(--new);background:var(--new-soft)}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:0 0 16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.card h4{margin:0 0 6px;font-size:15px}
+.card p{font-size:14.5px;margin:0 0 4px}
+.card pre{margin:6px 0 0;font-size:12.5px}
+.card ul{font-size:14.5px;margin:0;padding-left:18px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted);margin:0 0 10px}
+.legend span i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:10px 0 16px}
+.flow .st{flex:1 1 130px;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:6px;padding:8px 10px;font-size:13.5px}
+.flow .st b{display:block;font-size:14.5px;margin-bottom:2px}
+.flow .st.ai{border-top-color:var(--ai)} .flow .st.prog{border-top-color:var(--prog)} .flow .st.user{border-top-color:var(--user)} .flow .st.ana{border-top-color:var(--ana)}
+.path{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:18px 0 0}
+.changes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:14px 0 6px}
+.changes .card{border-left:4px solid var(--new)}
+.muted{color:var(--muted);font-size:14px}
+.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin:12px 0 18px}
+.scr{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;min-width:0;font-size:14px}
+.scr .bar{background:var(--bg);border-bottom:1px solid var(--line);padding:6px 12px;font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.03em}
+.scr .body{padding:10px 12px}
+.scr .msg{background:var(--user-soft);border-radius:8px;padding:6px 10px;margin:0 0 8px}
+.scr .opt{border:1px solid var(--line);border-radius:6px;padding:5px 8px;margin:0 0 5px;font-size:13px}
+.scr .opt.sel{border-color:var(--ana);background:var(--ana-soft)}
+.scr .fld{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding:3px 0;font-size:13px}
+.scr .fld span:first-child{color:var(--muted)}
+.scr .btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.scr .btn{font-size:12.5px;padding:3px 10px;border-radius:5px;border:1px solid var(--line);background:var(--bg)}
+.scr .btn.pri{background:var(--ana);border-color:var(--ana);color:#fff;font-weight:600}
+.scr pre{font-size:11.5px;margin:4px 0 0;padding:8px 10px}
+.scr .ok{color:var(--accent);font-weight:700}
+@media (max-width:640px){h1{font-size:27px}}
+@media print{body{padding:0}h2{break-after:avoid}figure,table,.card,.scr{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">FP Knowledge Encoding through AI · architecture · v0.7 · 2026-11-02</div>
+  <h1>iData Agent — Phase 2: Analysis</h1>
+  <p class="lede">The user works in a working directory that holds their data, for example the files downloaded in Phase 1. They either pick a ready-made common function (trend, forecast error, …) or describe what they need. The agent writes the code in Stata, R or Python, the user reviews it and clicks Run, and the program runs it on the user's computer and writes the results into the working directory.</p>
+  <div class="phases"><a href="architecture_phase1_retrieval.html">← Phase 1 · Data Retrieval</a><span>Phase 2 · Analysis</span></div>
+</header>
+
+<h2><span class="n">★</span>What changed since v0.6</h2>
+<div class="changes">
+  <div class="card"><h4>Generated code is the main path</h4><p>v0.6 planned one fixed tool per analysis ("recipes") and left free-form code for later. Now the AI writes code for any request, the way Claude Code does, and a person reviews it before it runs. Needs vary too much to define a tool for each.</p></div>
+  <div class="card"><h4>Common functions as a shortcut</h4><p>Frequent analyses (trend, forecast error, group aggregate, …) are a catalog shown first. Each is reviewed and tested once by the team; the user fills a short form instead of describing it. Section 3.</p></div>
+  <div class="card"><h4>Three languages, all runnable</h4><p>The user chooses Stata, R or Python, and the chosen code runs on their own computer, provided that language is installed. Section 5.</p></div>
+</div>
+
+<!-- 0 -->
+<h2><span class="n">0</span>Two examples</h2>
+<div class="grid">
+  <div class="card"><h4>With a common function</h4>
+    <p><b>User:</b> opens Analysis, sees the catalog, picks <i>Forecast error</i>.</p>
+    <p><b>Form:</b> data file <code>WEO_vintages_G7_NGDP_RPCH.csv</code> (from the working directory), target years 2015–2024, horizon "year ahead", actual = current WEO Live, error = actual − forecast. Language: Python.</p>
+    <p><b>Result:</b> the code appears, the user reviews and clicks Run; an error table, bias / MAE / RMSE by country and a chart land in the working directory.</p></div>
+  <div class="card"><h4>With a description</h4>
+    <p><b>User:</b> "None of these. For each country in my file, compute the average primary balance in years when growth was below 1%, and compare with other years." Language: Stata.</p>
+    <p><b>Agent:</b> looks at the file's columns and a few rows, writes a do-file, explains it in three lines.</p>
+    <p><b>Result:</b> the user reviews and clicks Run; Stata runs in batch mode; the table and the log land in the working directory. A typo in a variable name? The agent reads the error, proposes a fix, the user reviews again.</p></div>
+</div>
+
+<!-- 1 -->
+<h2><span class="n">1</span>Overall structure</h2>
+<figure>
+<svg viewBox="0 0 900 420" role="img" aria-label="Chat interface and code review screen on top; AI brain below; then three parts: the analysis tools, the code runner and the common function library. The working directory sits at the bottom. Method notes on the right feed the AI.">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1b2430"/></marker></defs>
+  <g fill="none" stroke="#1b2430" stroke-width="1.3" font-size="13" font-family="inherit">
+    <rect x="20" y="15" width="580" height="66" rx="8" fill="#fbeedd" stroke="#a85f12"/>
+    <text x="40" y="40" fill="#1b2430" stroke="none" font-weight="700" font-size="15">① Interface: catalog, chat, code review, Run button</text>
+    <text x="40" y="63" fill="#1b2430" stroke="none">The user sets the working directory and approves every run.</text>
+    <line x1="310" y1="81" x2="310" y2="108" marker-end="url(#a)" marker-start="url(#a)"/>
+
+    <rect x="20" y="108" width="580" height="72" rx="8" fill="#ece6f6" stroke="#6b4fa0"/>
+    <text x="40" y="133" fill="#1b2430" stroke="none" font-weight="700" font-size="15">② AI brain (gateway model)</text>
+    <text x="40" y="156" fill="#1b2430" stroke="none">Reads file summaries and method notes; writes and fixes code. Cannot run it.</text>
+    <line x1="140" y1="180" x2="140" y2="207" marker-end="url(#a)" marker-start="url(#a)"/>
+
+    <rect x="20" y="207" width="200" height="100" rx="8" fill="#e3ebf5" stroke="#3d5a80"/>
+    <text x="34" y="231" fill="#1b2430" stroke="none" font-weight="700">③ Analysis tools</text>
+    <text x="34" y="253" fill="#1b2430" stroke="none" font-size="12">list files, inspect a file,</text>
+    <text x="34" y="270" fill="#1b2430" stroke="none" font-size="12">read method note,</text>
+    <text x="34" y="287" fill="#1b2430" stroke="none" font-size="12">propose code</text>
+
+    <rect x="235" y="207" width="170" height="100" rx="8" fill="#dff1ef" stroke="#0f6e73"/>
+    <text x="249" y="231" fill="#1b2430" stroke="none" font-weight="700">④ Code runner</text>
+    <text x="249" y="253" fill="#1b2430" stroke="none" font-size="12">checks, then runs</text>
+    <text x="249" y="270" fill="#1b2430" stroke="none" font-size="12">Python / Rscript /</text>
+    <text x="249" y="287" fill="#1b2430" stroke="none" font-size="12">Stata batch</text>
+    <line x1="320" y1="81" x2="320" y2="207" stroke="#a85f12" stroke-dasharray="4 3" marker-end="url(#a)"/>
+    <text x="330" y="196" fill="#a85f12" stroke="none" font-size="11.5">Run click only</text>
+
+    <rect x="420" y="207" width="180" height="100" rx="8" fill="#e3ebf5" stroke="#3d5a80"/>
+    <text x="434" y="231" fill="#1b2430" stroke="none" font-weight="700">⑤ Common functions</text>
+    <text x="434" y="253" fill="#1b2430" stroke="none" font-size="12">catalog + parameter</text>
+    <text x="434" y="270" fill="#1b2430" stroke="none" font-size="12">forms + tested code</text>
+    <text x="434" y="287" fill="#1b2430" stroke="none" font-size="12">templates per language</text>
+
+    <line x1="320" y1="307" x2="320" y2="340" marker-end="url(#a)" marker-start="url(#a)"/>
+    <line x1="120" y1="307" x2="120" y2="340" marker-end="url(#a)"/>
+    <rect x="20" y="340" width="580" height="66" rx="8" stroke-dasharray="5 4"/>
+    <text x="40" y="365" fill="#1b2430" stroke="none" font-weight="700">Working directory (chosen by the user)</text>
+    <text x="40" y="388" fill="#1b2430" stroke="none" font-size="12.5">input data (e.g. Phase 1 downloads) · analysis/&lt;run&gt;/ scripts, logs, results</text>
+
+    <rect x="630" y="108" width="250" height="200" rx="8" stroke-dasharray="5 4"/>
+    <text x="648" y="134" fill="#1b2430" stroke="none" font-weight="700" font-size="15">Knowledge files (team-owned)</text>
+    <text x="648" y="162" fill="#1b2430" stroke="none">· rules given to the AI</text>
+    <text x="648" y="186" fill="#1b2430" stroke="none">· method notes per topic</text>
+    <text x="648" y="210" fill="#1b2430" stroke="none">  (definitions, defaults,</text>
+    <text x="648" y="234" fill="#1b2430" stroke="none">  pitfalls)</text>
+    <text x="648" y="258" fill="#1b2430" stroke="none">· safety check rules</text>
+    <text x="648" y="282" fill="#1b2430" stroke="none">· analysis test cases</text>
+    <line x1="630" y1="145" x2="600" y2="145" marker-end="url(#a)"/>
+    <line x1="630" y1="257" x2="600" y2="257" marker-end="url(#a)"/>
+  </g>
+</svg>
+<figcaption>The AI can write code but has no tool that runs it. The only path to the code runner is the user's Run click on the review screen (dashed line).</figcaption>
+</figure>
+
+<!-- 2 -->
+<h2><span class="n">2</span>The flow</h2>
+<div class="legend"><span><i style="background:#6b4fa0"></i>AI</span><span><i style="background:#0f6e73"></i>Program</span><span><i style="background:#a85f12"></i>User</span><span><i style="background:#3d5a80"></i>Common function</span></div>
+
+<div class="flow">
+  <div class="st user"><b>0 Working directory</b>set once; defaults to the Phase 1 folder</div>
+  <div class="st prog"><b>1 Catalog</b>"Is your analysis one of these?"</div>
+</div>
+<p class="path">Path A · a common function fits</p>
+<div class="flow">
+  <div class="st ana"><b>A2 Form</b>pick data file(s) and parameters; defaults shown</div>
+  <div class="st user"><b>A3 Language</b>Stata / R / Python (those the function supports)</div>
+  <div class="st prog"><b>A4 Code</b>tested template filled with the form; no AI</div>
+</div>
+<p class="path">Path B · none fits</p>
+<div class="flow">
+  <div class="st user"><b>B2 Describe</b>the need, in plain words</div>
+  <div class="st user"><b>B3 Language</b>Stata / R / Python</div>
+  <div class="st ai"><b>B4 Write</b>AI inspects files, reads method notes, writes code + a short explanation</div>
+</div>
+<p class="path">Both paths</p>
+<div class="flow">
+  <div class="st user"><b>5 Review</b>read the code; edit it, ask for changes, or approve</div>
+  <div class="st prog"><b>6 Run</b>checks pass → runs on the user's computer</div>
+  <div class="st prog"><b>7 Results</b>files in the working directory; log and preview shown</div>
+  <div class="st ai"><b>8 Fix (if it failed)</b>AI reads the error, proposes new code → back to 5</div>
+</div>
+
+<div class="scroll"><table>
+<thead><tr><th>Step</th><th>Who</th><th>What happens</th></tr></thead>
+<tbody>
+<tr><td>0 Working directory</td><td><span class="tag user">user</span></td><td>A folder path, set in the interface (text box, optional Browse dialog). Defaults to the Phase 1 download folder, so freshly downloaded data is already there. All reading and writing happens inside it.</td></tr>
+<tr><td>1 Catalog</td><td><span class="tag prog">program</span></td><td>On entering Analysis, a list of common functions with a one-line description each, plus "None of these — describe my own". If the user types first, the AI checks the catalog and suggests a match ("This looks like <i>Forecast error</i>; use it?").</td></tr>
+<tr><td>A2 Form</td><td><span class="tag user">user</span></td><td>Fields generated from the function's parameter list. Data files are chosen from the working directory; columns are matched automatically where names are standard (Phase 1 files are), otherwise picked from a dropdown. Method choices show their defaults.</td></tr>
+<tr><td>A3/B3 Language</td><td><span class="tag user">user</span></td><td>Stata, R or Python. Languages not installed on this computer are greyed out, with the reason. The last choice is remembered.</td></tr>
+<tr><td>A4 Code</td><td><span class="tag prog">program</span></td><td>The function's template for that language, filled with the form values. Same inputs give the same code every time.</td></tr>
+<tr><td>B2 Describe</td><td><span class="tag user">user</span></td><td>The need in plain words; may name files or columns.</td></tr>
+<tr><td>B4 Write</td><td><span class="tag ai">AI</span></td><td>Lists the working directory, inspects the relevant files (columns, types, a few rows, coverage), reads the method notes for the topic, then proposes code with a 2–4 line explanation and the list of files it will write. It may ask one question first if the request is ambiguous (e.g. which growth rate).</td></tr>
+<tr><td>5 Review</td><td><span class="tag user">user</span></td><td>Code, explanation, inputs it reads, outputs it writes, and any warnings from the checks. Buttons: <b>Run</b>, <b>Edit code</b> (direct editing), <b>Ask for changes</b> (chat), <b>Cancel</b>.</td></tr>
+<tr><td>6 Run</td><td><span class="tag prog">program</span></td><td>Safety checks first (section 6); if they pass, runs the script in the chosen language with the run folder as working directory, with a time limit.</td></tr>
+<tr><td>7 Results</td><td><span class="tag prog">program</span></td><td>Shows the files written, previews of tables, charts, and the end of the log. Everything is saved in <code>analysis/&lt;run&gt;/</code> (section 5).</td></tr>
+<tr><td>8 Fix</td><td><span class="tag ai">AI</span></td><td>On an error, the AI gets the error message and the end of the log, and proposes corrected code with a note on what changed. It goes back to review: a fix never runs on its own. After three failed attempts the agent stops and explains.</td></tr>
+</tbody></table></div>
+
+<h3>What the user sees</h3>
+<div class="screens">
+  <div class="scr"><div class="bar">STEP 1 · CATALOG</div><div class="body">
+    <p style="margin:0 0 6px">Is your analysis one of these?</p>
+    <div class="opt">Trend (linear, log-linear, HP filter)</div>
+    <div class="opt">Growth rates (y/y, q/q, CAGR)</div>
+    <div class="opt sel">Forecast error across WEO vintages</div>
+    <div class="opt">Weighted group aggregate</div>
+    <div class="opt">… · <b>None of these — describe my own</b></div>
+  </div></div>
+
+  <div class="scr"><div class="bar">STEP 5 · REVIEW</div><div class="body">
+    <div class="fld"><span>Language</span><span>Python</span></div>
+    <div class="fld"><span>Reads</span><span><code>WEO_vintages_G7_….csv</code></span></div>
+    <div class="fld"><span>Writes</span><span><code>errors.csv</code>, <code>summary.csv</code>, <code>chart.png</code></span></div>
+<pre><code>import pandas as pd
+df = pd.read_csv("../../WEO_vintages_G7_….csv")
+df["horizon"] = df.target_year - df.vintage_year
+...</code></pre>
+    <div class="btns"><span class="btn pri">Run</span><span class="btn">Edit code</span><span class="btn">Ask for changes</span><span class="btn">Cancel</span></div>
+  </div></div>
+
+  <div class="scr"><div class="bar">STEP 7 · RESULTS</div><div class="body">
+    <p style="margin:0 0 6px"><span class="ok">✓</span> Finished in 3 s. Saved to<br><code>…\analysis\2026-11-02_1530_forecast_error\</code></p>
+    <div class="fld"><span>summary.csv</span><span>7 rows · preview below</span></div>
+    <div class="fld"><span>chart.png</span><span>shown below</span></div>
+    <div class="fld"><span>script.py, run.log, run.json</span><span>saved</span></div>
+  </div></div>
+</div>
+
+<!-- 3 -->
+<h2><span class="n">3</span>Common functions</h2>
+<p>A common function is an analysis the team has written, reviewed with an economist and tested once, so users get it right without describing it. It replaces the v0.6 "recipe" tools, but it is a <i>shortcut in the interface</i>, not a tool the AI must call.</p>
+
+<div class="grid">
+  <div class="card"><h4>What each common function contains</h4>
+  <ul>
+    <li><b>Name, version, one-line description</b> for the catalog</li>
+    <li><b>Parameters</b> with types and defaults; the form is generated from them</li>
+    <li><b>Expected input</b>: which columns it needs, with automatic matching for Phase 1 files</li>
+    <li><b>Code template per language</b>; the catalog shows which languages exist (Python first)</li>
+    <li><b>Method note</b>: definitions, defaults and pitfalls, also read by the AI in path B</li>
+    <li><b>Test case</b>: a small input and the expected output, run for every language version</li>
+  </ul></div>
+  <div class="card"><h4>Folder layout (sketch)</h4>
+<pre><code>analysis_functions/
+  forecast_error/
+    function.yaml      # name, params, defaults, inputs
+    method_note.md
+    template.py.txt
+    template.do.txt
+    template.R.txt
+    tests/input.csv, expected.csv
+  trend/
+  growth_rates/
+  group_aggregate/</code></pre></div>
+</div>
+
+<h3>First candidates</h3>
+<div class="scroll"><table>
+<thead><tr><th>Function</th><th>What it does</th><th>Method choices on the form</th></tr></thead>
+<tbody>
+<tr><td>Trend</td><td>Trend and cycle of a series per country</td><td>linear, log-linear or HP filter; λ for HP (default by frequency: 100 / 1600 / 129600); sample period</td></tr>
+<tr><td>Growth rates</td><td>Growth over periods</td><td>y/y, q/q annualised or not, CAGR over a window; log or percent</td></tr>
+<tr><td>Forecast error</td><td>How far WEO forecasts were from outcomes, by country, horizon and vintage</td><td>actual = current WEO Live (default) or first release; error = actual − forecast; horizon = target year − vintage year; outputs bias, MAE, RMSE</td></tr>
+<tr><td>Group aggregate</td><td>A country-group series weighted by size</td><td>weights PPP GDP (default) / USD GDP / population / equal; same-year or fixed-year weights; re-scale over members with data only if they cover ≥ 90% of the weight; never sums percentages</td></tr>
+<tr><td>Rebase / index</td><td>Re-express a series as an index or in another base year</td><td>base year or period; level or average-of-year</td></tr>
+<tr><td>Ratio to GDP</td><td>Divide a level by nominal GDP in the same currency and units</td><td>checks units and scale match before dividing</td></tr>
+</tbody></table></div>
+<p class="muted">The economists decide the list and the defaults (section 8). New functions are added when a described request (path B) comes up often: its reviewed code becomes the template.</p>
+
+<!-- 4 -->
+<h2><span class="n">4</span>Path B: the AI writes the code</h2>
+<p>This works like Claude Code: the model writes code as a tool call, the program runs it, and the result goes back to the model. Two differences make it fit IMF machines: the model has <b>no tool that runs code</b>, and the result goes back only after the user approved the run.</p>
+
+<h3>The AI's tools in Phase 2</h3>
+<div class="scroll"><table>
+<thead><tr><th>Tool</th><th>Purpose</th><th>What the AI gets back</th></tr></thead>
+<tbody>
+<tr><td><code>list_workdir_files</code></td><td>Files in the working directory (data types only: csv, xlsx, dta, parquet, txt)</td><td>names, sizes, dates</td></tr>
+<tr><td><code>inspect_file</code></td><td>Understand one data file before writing code for it</td><td>column names and types, 5 rows, row count, countries and period covered; reads the sidecar if it is a Phase 1 file</td></tr>
+<tr><td><code>read_method_note</code></td><td>Definitions and pitfalls for a topic (forecast errors, aggregation, trends, …)</td><td>the note's text</td></tr>
+<tr><td><code>suggest_common_function</code></td><td>Point the user to a catalog entry that fits the request</td><td>shows the form, pre-filled</td></tr>
+<tr><td><code>propose_code</code></td><td>Put code on the review screen</td><td>nothing until the user acts; after a run: exit status, end of the log, files written, short previews</td></tr>
+<tr><td><code>ask_user</code></td><td>One question with options when the request is ambiguous</td><td>the user's answer</td></tr>
+</tbody></table></div>
+<p>All file tools take a file name inside the working directory, never a path, and only previews go to the model; full data stays on the computer.</p>
+
+<h3>Rules given to the AI</h3>
+<ul>
+  <li>Read the files with <code>inspect_file</code> before writing code that uses them; do not guess column names.</li>
+  <li>Read the method note when the request touches a topic that has one, and follow its definitions; state any choice the note leaves open in the explanation.</li>
+  <li>Read inputs from the working directory, write outputs only into the run folder, and list the outputs in <code>propose_code</code>.</li>
+  <li>Do not download data in the analysis code. If data is missing, say so and offer to go to Phase 1 (section 6).</li>
+  <li>Keep code plain: standard packages only (pandas, numpy, statsmodels, matplotlib; base R + common packages; Stata built-ins), with comments on each step.</li>
+  <li>When a common function fits, suggest it instead of writing new code.</li>
+</ul>
+
+<!-- 5 -->
+<h2><span class="n">5</span>Running the code</h2>
+<div class="scroll"><table>
+<thead><tr><th>Language</th><th>How it is started (no shell)</th><th>Log</th></tr></thead>
+<tbody>
+<tr><td><span class="tag lang">Python</span></td><td>the IMF Python: <code>[python, "-I", "script.py"]</code></td><td>stdout and stderr captured</td></tr>
+<tr><td><span class="tag lang">R</span></td><td><code>[Rscript.exe, "--vanilla", "script.R"]</code></td><td>stdout and stderr captured</td></tr>
+<tr><td><span class="tag lang">Stata</span></td><td>batch mode: <code>[StataMP-64.exe, "/e", "do", "script.do"]</code></td><td><code>script.log</code> written by Stata, read back</td></tr>
+</tbody></table></div>
+<ul>
+  <li><strong>Finding the programs.</strong> At start-up the program looks for Python (always present), <code>Rscript.exe</code> and the Stata executable in their usual install folders; the user can set the paths in settings. Languages not found are greyed out on the language choice.</li>
+  <li><strong>Child process, no shell.</strong> The program is started directly with a list of arguments (<code>subprocess.run(..., shell=False)</code>), with the run folder as working directory, a reduced set of environment variables and a time limit (default 10 minutes, adjustable). The interface stays responsive and can stop the run.</li>
+  <li><strong>One run, one folder.</strong> Each run writes to its own folder, so nothing is overwritten and every result can be traced:</li>
+</ul>
+<pre><code>&lt;working directory&gt;\
+  WEO_LIVE_USA+JPN_NGDP_RPCH_A_2015-2026.csv     ← Phase 1 download
+  analysis\
+    2026-11-02_1530_forecast_error\
+      script.py        ← the exact code that ran (after any user edits)
+      run.log          ← output and errors
+      run.json         ← request, language, function + version or "described",
+                         input files with their size and date, start/end, exit status
+      errors.csv  summary.csv  chart.png             ← results</code></pre>
+<p>Re-running <code>script.py</code> by hand gives the same results, so the user can take it into their own work without the agent.</p>
+
+<!-- 6 -->
+<h2><span class="n">6</span>Safety and data rules</h2>
+<div class="box warn">
+<p><strong>Running AI-written code on an IMF computer is the main risk of Phase 2.</strong> Claude Code and Codex are not allowed on IMF PCs, partly for this reason. Windows offers no simple sandbox here (no Docker), so the protection is layered, with a person approving every run. This design should be reviewed with IT before Phase 2 is built.</p>
+</div>
+<div class="scroll"><table>
+<thead><tr><th>Layer</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>Human approval</td><td>Nothing runs without the user's Run click on the review screen, including fixes after an error. The AI has no tool that runs code.</td></tr>
+<tr><td>Checks before running</td><td>Python: the code is parsed and blocked if it imports or calls things like <code>subprocess</code>, <code>os.system</code>, <code>shutil.rmtree</code>, file deletion, network libraries (<code>requests</code>, <code>urllib</code>, <code>socket</code>), <code>eval</code>/<code>exec</code>. Stata and R: pattern rules block <code>shell</code>/<code>!</code>, <code>erase</code>/<code>rm</code>, <code>system()</code>, <code>unlink()</code>, <code>download.file()</code> and similar. Any write outside the run folder is flagged. Blocked code shows the reason on the review screen.</td></tr>
+<tr><td>Running</td><td>No shell; run folder as working directory; reduced environment; time limit; stop button.</td></tr>
+<tr><td>After running</td><td>The program lists every file changed in the working directory. Anything outside the run folder is reported to the user.</td></tr>
+<tr><td>Data to the model</td><td>Only column names, a few rows, counts, and the end of logs. Full data never leaves the computer.</td></tr>
+<tr><td>Data retrieval</td><td>Analysis code does not call <code>imf_datatools</code> or <code>idatause</code>; the checks flag it. Data comes from Phase 1, where the confirmation and vintage rules apply. The agent offers "Get this data in Phase 1" when something is missing.</td></tr>
+</tbody></table></div>
+<p class="muted">The checks catch mistakes and obvious misuse; they cannot stop all harmful code. That is why the review step stays, and why the code is shown in full rather than summarised.</p>
+
+<!-- 7 -->
+<h2><span class="n">7</span>How Phase 1 and Phase 2 connect</h2>
+<ul>
+  <li><strong>Same folder.</strong> The working directory defaults to the Phase 1 download folder.</li>
+  <li><strong>Known files.</strong> Phase 1 files have standard columns and a sidecar <code>.json</code>, so <code>inspect_file</code> can tell the AI the database, indicator, unit and scale, and common-function forms can fill in columns automatically.</li>
+  <li><strong>Missing data.</strong> If an analysis needs data that is not in the folder (e.g. weights for an aggregate), the agent says what is missing and opens the Phase 1 flow with a drafted request; after the download it returns to the analysis.</li>
+  <li><strong>Other files.</strong> Files the user put in the folder themselves work too; the AI inspects them the same way, without a sidecar.</li>
+</ul>
+
+<!-- 8 -->
+<h2><span class="n">8</span>Open questions</h2>
+<div class="box q">
+<ol>
+  <li><b>IT approval.</b> Will IT accept a local app that runs AI-written code after the user's review, with the checks above? This decides whether Phase 2 can be built as designed.</li>
+  <li><b>Stata and R on IMF PCs.</b> Which versions are installed, where, and does the Stata licence allow batch mode started from another program?</li>
+  <li><b>First common functions.</b> Which analyses do economists ask for most often, and what are their default method choices? (The six in section 3 are a starting list.)</li>
+  <li><b>Code quality per language.</b> How well does the gateway model write Stata and R compared with Python? To be tested with a set of sample requests in each language before release.</li>
+  <li><b>Editing code.</b> Should users be able to edit code directly on the review screen, or only ask the AI for changes? Direct editing is assumed; the edited version is what gets saved.</li>
+</ol>
+</div>
+
+<p class="muted">Ownership: this repository owns the common functions, method notes, check rules, AI instructions and the Phase 2 tool definitions; the colleague's harness owns the screens, the model loop and the code runner. Previous: <a href="architecture_phase1_retrieval.html">Phase 1 · Data Retrieval</a>.</p>
+
+</main>
+</body>
+</html>

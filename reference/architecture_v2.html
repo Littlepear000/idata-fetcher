@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iData Agent Architecture</title>
+<style>
+:root{
+  --bg:#f7f8f6; --surface:#fff; --fg:#1b2430; --muted:#5b6672; --line:#d6dbd4;
+  --accent:#0f6e73; --accent-soft:#dff1ef;
+  --ai:#6b4fa0; --ai-soft:#ece6f6; --prog:#0f6e73; --prog-soft:#dff1ef; --user:#a85f12; --user-soft:#fbeedd;
+  --ana:#3d5a80; --ana-soft:#e3ebf5; --new:#b3261e; --new-soft:#fbe4e2;
+  --code-bg:#f0f2ee;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Segoe UI",Helvetica,Arial,sans-serif;font-size:16.5px;line-height:1.6;padding:0 16px 64px}
+main{max-width:960px;margin:0 auto}
+header{padding:48px 0 24px;border-bottom:1px solid var(--line);margin-bottom:32px}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:34px;line-height:1.2;margin:8px 0 10px;font-weight:700}
+.lede{font-size:18px;color:var(--muted);margin:0;max-width:42em}
+h2{font-size:24px;margin:48px 0 10px;padding-top:8px;font-weight:700}
+h2 .n{color:var(--accent);margin-right:10px}
+h3{font-size:18px;margin:24px 0 6px}
+p{margin:0 0 12px;max-width:46em}
+ul,ol{margin:0 0 12px;padding-left:22px;max-width:46em}
+li{margin-bottom:4px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.55;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:0 0 14px}
+pre code{background:none;padding:0;overflow-wrap:normal}
+figure{margin:20px 0 24px}
+figure svg{max-width:100%;height:auto;display:block}
+figcaption{font-size:14px;color:var(--muted);margin-top:6px;max-width:46em}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:0 0 18px;background:var(--surface)}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+tr.grp td{background:var(--bg);font-weight:700;font-size:13.5px;color:var(--muted);letter-spacing:.03em}
+.tag{display:inline-block;font-size:12.5px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.tag.ai{background:var(--ai-soft);color:var(--ai)}
+.tag.prog{background:var(--prog-soft);color:var(--prog)}
+.tag.user{background:var(--user-soft);color:var(--user)}
+.tag.new{background:var(--new-soft);color:var(--new)}
+.tag.chg{background:var(--user-soft);color:var(--user)}
+.box{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 16px;border-radius:0 6px 6px 0;margin:16px 0;max-width:50em}
+.box.q{border-color:var(--user);background:var(--user-soft)}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:0 0 16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.card h4{margin:0 0 6px;font-size:15px}
+.card p{font-size:14.5px;margin:0 0 4px}
+.card pre{margin:6px 0 0;font-size:12.5px}
+.card ul{font-size:14.5px;margin:0;padding-left:18px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted);margin:0 0 10px}
+.legend span i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.example{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:12px 0 18px;max-width:900px}
+.example .card{height:100%}
+.example .arrow{font-size:28px;color:var(--accent);text-align:center}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:14px 0 18px}
+.flow .st{flex:1 1 140px;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:6px;padding:8px 10px;font-size:13.5px}
+.flow .st b{display:block;font-size:14.5px;margin-bottom:2px}
+.flow .st.ai{border-top-color:var(--ai)} .flow .st.prog{border-top-color:var(--prog)} .flow .st.user{border-top-color:var(--user)} .flow .st.ana{border-top-color:var(--ana)}
+.changes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:14px 0 6px}
+.changes .card{border-left:4px solid var(--new)}
+.muted{color:var(--muted);font-size:14px}
+@media (max-width:640px){.example{grid-template-columns:1fr}.example .arrow{transform:rotate(90deg)}h1{font-size:27px}}
+@media print{body{padding:0}h2{break-after:avoid}figure,table,.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">FP Knowledge Encoding through AI · architecture · v0.6 · 2026-11-02</div>
+  <h1>iData Agent Architecture</h1>
+  <p class="lede">The user describes, in one sentence, the data they want or the analysis they need. The agent finds the right indicator and database, confirms once, retrieves the data with <code>imf_datatools</code>, runs fixed and tested analysis functions if asked, and saves the results to the user's folder with reproducible code.</p>
+</header>
+
+<h2><span class="n">★</span>What changed since v0.5</h2>
+<div class="changes">
+  <div class="card"><h4>The agent picks the database</h4><p>The user no longer names one. A local index of indicators from all in-scope databases lets the agent return the top 3–5 matches as <i>indicator + database + description</i>. The user confirms once. Sections 2, 3, 5.</p></div>
+  <div class="card"><h4>Analysis layer</h4><p>New "recipes": fixed, tested functions such as WEO forecast errors and weighted country-group aggregates. Each recipe is one tool, built from a shared template. Section 6.</p></div>
+  <div class="card"><h4>User folders</h4><p>The user sets an output folder (default Downloads) and may declare an input folder whose files the agent can list and read. Sections 1, 4, 7.</p></div>
+</div>
+<p class="muted">The previous version is kept at <code>reference/architecture.html</code>.</p>
+
+<!-- 0 -->
+<h2><span class="n">0</span>Two examples first</h2>
+<div class="example">
+  <div class="card"><h4>Retrieval: user types</h4><p>"Real GDP growth for the US and Japan since 2015"</p></div>
+  <div class="arrow">→</div>
+  <div class="card"><h4>Agent returns</h4>
+    <p>1. Top candidates; the first is <code>NGDP_RPCH</code>, "GDP, constant prices, percent change", in WEO Live. The user clicks to confirm.</p>
+    <p>2. A sheet: USA + JPN, annual, 2015–2026, plus the code in three languages</p>
+    <p>3. A file in the output folder: <code>WEO_LIVE_USA+JPN_NGDP_RPCH_A_2015-2026.csv</code></p></div>
+</div>
+<div class="example">
+  <div class="card"><h4>Analysis: user types</h4><p>"How large were WEO's year-ahead forecast errors for G7 real GDP growth over 2015–2024?"</p></div>
+  <div class="arrow">→</div>
+  <div class="card"><h4>Agent returns</h4>
+    <p>1. An analysis sheet: recipe <i>forecast error</i>, indicator <code>NGDP_RPCH</code>, G7 countries, vintages April and October 2014–2023, "actual" = current WEO Live, error = actual − forecast. Defaults are shown and can be changed.</p>
+    <p>2. After one confirmation: an error table, bias / MAE / RMSE by country, a chart, a method note and a Python script</p></div>
+</div>
+<p>The split of responsibilities is unchanged: the AI <em>understands the request and finds the right codes and the right recipe</em>; ordinary code <em>retrieves, computes and saves</em>. The AI never types a code that no tool returned, and never does arithmetic on the data itself.</p>
+
+<!-- 1 -->
+<h2><span class="n">1</span>Overall structure</h2>
+<p>Still four parts stacked top to bottom. The toolbox now has three drawers, and a workspace sits beside the data environment.</p>
+
+<figure>
+<svg viewBox="0 0 900 500" role="img" aria-label="Four layers: chat interface, AI brain, toolbox with retrieval, workspace and analysis drawers, then the IMF data environment and the local workspace. Knowledge files on the right feed the AI brain and the toolbox.">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1b2430"/></marker></defs>
+  <g fill="none" stroke="#1b2430" stroke-width="1.3" font-size="13" font-family="inherit">
+    <rect x="20" y="15" width="580" height="66" rx="8" fill="#fbeedd" stroke="#a85f12"/>
+    <text x="40" y="40" fill="#1b2430" stroke="none" font-weight="700" font-size="15">① Chat interface</text>
+    <text x="40" y="63" fill="#1b2430" stroke="none">Types, confirms, picks folders, receives files. Streamlit now, pywebview + HTML later.</text>
+    <line x1="310" y1="81" x2="310" y2="108" marker-end="url(#a)" marker-start="url(#a)"/>
+    <text x="322" y="99" fill="#5b6672" stroke="none" font-size="12">messages in, events out (text, choices, sheet, code, files)</text>
+
+    <rect x="20" y="108" width="580" height="80" rx="8" fill="#ece6f6" stroke="#6b4fa0"/>
+    <text x="40" y="133" fill="#1b2430" stroke="none" font-weight="700" font-size="15">② AI brain (language model + flow control)</text>
+    <text x="40" y="156" fill="#1b2430" stroke="none">Understands the request, picks the next tool, keeps the query sheet and the analysis sheet.</text>
+    <text x="40" y="177" fill="#1b2430" stroke="none">Never touches data directly; sees only summaries and previews.</text>
+    <line x1="310" y1="188" x2="310" y2="215" marker-end="url(#a)" marker-start="url(#a)"/>
+    <text x="322" y="206" fill="#5b6672" stroke="none" font-size="12">tool call: tool name + arguments → result</text>
+
+    <rect x="20" y="215" width="580" height="150" rx="8" fill="#dff1ef" stroke="#0f6e73"/>
+    <text x="40" y="240" fill="#1b2430" stroke="none" font-weight="700" font-size="15">③ Toolbox (fixed Python functions, one job each)</text>
+    <rect x="36" y="252" width="200" height="98" rx="6" fill="#fff" stroke="#0f6e73"/>
+    <text x="48" y="274" fill="#1b2430" stroke="none" font-weight="700">A. Retrieval ①–⑩</text>
+    <text x="48" y="296" fill="#1b2430" stroke="none" font-size="12">search indicators, dimensions,</text>
+    <text x="48" y="313" fill="#1b2430" stroke="none" font-size="12">codes, groups, preview,</text>
+    <text x="48" y="330" fill="#1b2430" stroke="none" font-size="12">render code, fetch, ask</text>
+    <rect x="246" y="252" width="160" height="98" rx="6" fill="#fff" stroke="#0f6e73"/>
+    <text x="258" y="274" fill="#1b2430" stroke="none" font-weight="700">B. Workspace ⑪–⑬</text>
+    <text x="258" y="296" fill="#1b2430" stroke="none" font-size="12">list / read files in the</text>
+    <text x="258" y="313" fill="#1b2430" stroke="none" font-size="12">input folder, describe</text>
+    <text x="258" y="330" fill="#1b2430" stroke="none" font-size="12">a dataset</text>
+    <rect x="416" y="252" width="170" height="98" rx="6" fill="#e3ebf5" stroke="#3d5a80"/>
+    <text x="428" y="274" fill="#1b2430" stroke="none" font-weight="700">C. Analysis recipes ⑭+</text>
+    <text x="428" y="296" fill="#1b2430" stroke="none" font-size="12">forecast error,</text>
+    <text x="428" y="313" fill="#1b2430" stroke="none" font-size="12">group aggregate,</text>
+    <text x="428" y="330" fill="#1b2430" stroke="none" font-size="12">more added over time</text>
+
+    <line x1="136" y1="365" x2="136" y2="400" marker-end="url(#a)"/>
+    <line x1="420" y1="365" x2="420" y2="400" marker-end="url(#a)" marker-start="url(#a)"/>
+    <rect x="20" y="400" width="250" height="80" rx="8" stroke-dasharray="5 4"/>
+    <text x="36" y="425" fill="#1b2430" stroke="none" font-weight="700">④ IMF data environment</text>
+    <text x="36" y="448" fill="#1b2430" stroke="none" font-size="12.5">company Python, imf_datatools,</text>
+    <text x="36" y="466" fill="#1b2430" stroke="none" font-size="12.5">iData sign-in (only A calls it)</text>
+    <rect x="290" y="400" width="310" height="80" rx="8" stroke-dasharray="5 4"/>
+    <text x="306" y="425" fill="#1b2430" stroke="none" font-weight="700">Local workspace</text>
+    <text x="306" y="448" fill="#1b2430" stroke="none" font-size="12.5">dataset store (every fetch / result has an id),</text>
+    <text x="306" y="466" fill="#1b2430" stroke="none" font-size="12.5">user's output folder and input folder</text>
+
+    <rect x="630" y="108" width="250" height="257" rx="8" stroke-dasharray="5 4"/>
+    <text x="648" y="134" fill="#1b2430" stroke="none" font-weight="700" font-size="15">Knowledge files (team-owned)</text>
+    <text x="648" y="162" fill="#1b2430" stroke="none">· rules given to the AI</text>
+    <text x="648" y="186" fill="#1b2430" stroke="none">· indicator index (all databases)</text>
+    <text x="648" y="210" fill="#1b2430" stroke="none">· database scope + priority list</text>
+    <text x="648" y="234" fill="#1b2430" stroke="none">· lookup + abbreviation tables</text>
+    <text x="648" y="258" fill="#1b2430" stroke="none">· code templates, 3 languages</text>
+    <text x="648" y="282" fill="#1b2430" stroke="none">· recipe method notes + defaults</text>
+    <text x="648" y="306" fill="#1b2430" stroke="none">· test cases (retrieval + analysis)</text>
+    <line x1="630" y1="150" x2="600" y2="150" marker-end="url(#a)"/>
+    <line x1="630" y1="290" x2="600" y2="290" marker-end="url(#a)"/>
+  </g>
+</svg>
+<figcaption>Only drawer A talks to iData. Drawer C never downloads anything itself: it works on datasets that drawer A has already put in the workspace. That keeps every number traceable to a confirmed retrieval.</figcaption>
+</figure>
+
+<!-- 2 -->
+<h2><span class="n">2</span>The central objects: query sheet and analysis sheet</h2>
+<p>The <b>query sheet</b> (QuerySpec) is unchanged in shape: it fills up step by step, from the user's words to verified codes, and nothing runs until the user confirms it. The change is the database row.</p>
+
+<div class="scroll"><table>
+<thead><tr><th>Field</th><th>User's words</th><th>Verified value</th><th>How it was obtained</th></tr></thead>
+<tbody>
+<tr><td>Indicator + database <span class="tag chg">changed</span></td><td>"real GDP growth"</td><td><code>NGDP_RPCH</code> in <code>IMF.RES.WEO:WEO_LIVE</code></td><td>Tool ①, searching the index of all in-scope databases. The user confirms both in one click (section 5).</td></tr>
+<tr><td>Country</td><td>"the US and Japan"</td><td><code>USA + JPN</code></td><td>Tool ④, validated against that database's country list</td></tr>
+<tr><td>Frequency</td><td>(not said)</td><td><code>A</code> (annual)</td><td>Only one value in this database, filled automatically</td></tr>
+<tr><td>Time</td><td>"since 2015"</td><td>2015 – 2026</td><td>AI converts relative dates</td></tr>
+<tr><td>Output <span class="tag chg">changed</span></td><td>(not said)</td><td>long CSV in the output folder</td><td>Folder set in the interface; default Downloads</td></tr>
+<tr><td>Code language</td><td>(not said)</td><td>Python (user can switch)</td><td>Default</td></tr>
+</tbody></table></div>
+<p>Rows are still created from the database's own dimensions, so CPI-style databases with five dimensions need no new code.</p>
+
+<h3>The analysis sheet <span class="tag new">new</span></h3>
+<p>When the request is an analysis, the agent also fills an <b>analysis sheet</b> (AnalysisSpec). It names one recipe, the recipe's parameters, and the <b>data plan</b>: the list of query sheets the recipe needs. The user confirms the analysis sheet and its data plan together, once.</p>
+<div class="scroll"><table>
+<thead><tr><th>Field</th><th>Example (forecast error)</th><th>Where it comes from</th></tr></thead>
+<tbody>
+<tr><td>Recipe</td><td><code>forecast_error</code> v1</td><td>AI picks from the recipe list; if none fits, says so (section 6)</td></tr>
+<tr><td>Parameters</td><td>indicator <code>NGDP_RPCH</code>; G7; target years 2015–2024; horizon "year ahead"</td><td>Resolved with the same retrieval tools as a query sheet</td></tr>
+<tr><td>Method choices</td><td>actual = current WEO Live; error = actual − forecast</td><td>Recipe defaults, shown and editable; never silently assumed</td></tr>
+<tr><td>Data plan</td><td>20 vintage retrievals + 1 "actual" retrieval</td><td>Generated by the recipe from the parameters, not by the AI</td></tr>
+<tr><td>Outputs</td><td>error table, summary table, chart, method note, script</td><td>Fixed by the recipe</td></tr>
+</tbody></table></div>
+
+<!-- 3 -->
+<h2><span class="n">3</span>Lifecycle of one request</h2>
+<p>The same seven steps. An analysis request takes the same path, with the recipe added in Parse, Confirm and Execute.</p>
+<div class="legend"><span><i style="background:#6b4fa0"></i>AI judgement</span><span><i style="background:#0f6e73"></i>Program</span><span><i style="background:#a85f12"></i>User</span></div>
+
+<figure>
+<svg viewBox="0 0 900 290" role="img" aria-label="Seven steps left to right: intake, parse, resolve, confirm, generate code, execute, deliver, with loops back to the user and back to resolve.">
+  <defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1b2430"/></marker></defs>
+  <g fill="none" stroke="#1b2430" stroke-width="1.3" font-size="12.5" font-family="inherit">
+    <rect x="10" y="95" width="100" height="62" rx="6" fill="#fbeedd" stroke="#a85f12"/>
+    <text x="60" y="120" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">1 Intake</text>
+    <text x="60" y="140" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">user types</text>
+
+    <rect x="130" y="95" width="115" height="62" rx="6" fill="#ece6f6" stroke="#6b4fa0"/>
+    <text x="187" y="116" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">2 Parse</text>
+    <text x="187" y="133" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">draft sheet(s);</text>
+    <text x="187" y="148" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">data or analysis?</text>
+
+    <rect x="265" y="95" width="140" height="62" rx="6" fill="#ece6f6" stroke="#6b4fa0"/>
+    <text x="335" y="116" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">3 Resolve</text>
+    <text x="335" y="133" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">indicator + db → dims</text>
+    <text x="335" y="148" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">→ codes → time → preview</text>
+
+    <rect x="425" y="95" width="105" height="62" rx="6" fill="#fbeedd" stroke="#a85f12"/>
+    <text x="477" y="116" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">4 Confirm</text>
+    <text x="477" y="133" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">sheet + method</text>
+    <text x="477" y="148" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">+ code, once</text>
+
+    <rect x="550" y="95" width="100" height="62" rx="6" fill="#dff1ef" stroke="#0f6e73"/>
+    <text x="600" y="120" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">5 Generate</text>
+    <text x="600" y="140" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">Py · Stata · R</text>
+
+    <rect x="670" y="95" width="105" height="62" rx="6" fill="#dff1ef" stroke="#0f6e73"/>
+    <text x="722" y="116" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">6 Execute</text>
+    <text x="722" y="133" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">fetch, then</text>
+    <text x="722" y="148" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">run recipe</text>
+
+    <rect x="795" y="95" width="95" height="62" rx="6" fill="#dff1ef" stroke="#0f6e73"/>
+    <text x="842" y="120" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">7 Deliver</text>
+    <text x="842" y="140" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">files + trace</text>
+
+    <line x1="110" y1="126" x2="130" y2="126" marker-end="url(#b)"/>
+    <line x1="245" y1="126" x2="265" y2="126" marker-end="url(#b)"/>
+    <line x1="405" y1="126" x2="425" y2="126" marker-end="url(#b)"/>
+    <line x1="530" y1="126" x2="550" y2="126" marker-end="url(#b)"/>
+    <line x1="650" y1="126" x2="670" y2="126" marker-end="url(#b)"/>
+    <line x1="775" y1="126" x2="795" y2="126" marker-end="url(#b)"/>
+
+    <path d="M335,95 L335,50 L60,50 L60,95" marker-end="url(#b)" stroke="#a85f12"/>
+    <text x="198" y="42" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">top-5 indicators to pick / no dates / no recipe fits → ask the user</text>
+    <path d="M477,157 L477,197 L335,197 L335,157" marker-end="url(#b)" stroke="#a85f12"/>
+    <text x="406" y="214" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">"make it quarterly" / "use PPP weights" → edit the sheet, resolve again</text>
+    <path d="M722,157 L722,242 L335,242 L335,157" stroke-dasharray="4 3" marker-end="url(#b)"/>
+    <text x="528" y="259" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">zero rows / sign-in expired / too little coverage → diagnose, back to resolve</text>
+  </g>
+</svg>
+<figcaption>Steps 5 to 7 involve no AI. For an analysis, step 6 runs every retrieval in the data plan, then the recipe.</figcaption>
+</figure>
+
+<div class="scroll"><table>
+<thead><tr><th>Step</th><th>Who</th><th>What happens</th><th>Tools</th></tr></thead>
+<tbody>
+<tr><td>1 Intake</td><td><span class="tag user">user</span></td><td>Describes the data or the analysis in the chat box.</td><td>–</td></tr>
+<tr><td>2 Parse</td><td><span class="tag ai">AI</span></td><td>Drafts the query sheet in the user's words. Decides: plain retrieval, or an analysis (then picks a recipe and drafts the analysis sheet). Also decides whether this is a new request or an edit of the previous one.</td><td>⑬ (if the user refers to an existing dataset or file)</td></tr>
+<tr><td>3 Resolve <span class="tag chg">changed</span></td><td><span class="tag ai">AI</span> + <span class="tag prog">program</span></td><td>Indicator <b>and database first</b>, from the cross-database index; then that database's dimensions, the other codes, the time range, and a small preview. For an analysis, the recipe builds its data plan from the resolved parameters.</td><td>① – ⑦, ⑪ ⑫</td></tr>
+<tr><td>4 Confirm</td><td><span class="tag user">user</span></td><td>One screen: the sheet (words → code → description), the method choices for an analysis, the data plan, and the code. Confirm, edit, or switch language.</td><td>⑧ ⑩</td></tr>
+<tr><td>5 Generate</td><td><span class="tag prog">program</span></td><td>Templates render the retrieval in Python, Stata and R. A recipe's script is rendered in Python.</td><td>⑧</td></tr>
+<tr><td>6 Execute</td><td><span class="tag prog">program</span></td><td>Runs every retrieval in a child process; each result goes into the dataset store with an id. Then runs the recipe on those ids.</td><td>⑨, ⑭+</td></tr>
+<tr><td>7 Deliver</td><td><span class="tag prog">program</span></td><td>Writes the files to the output folder, with a sidecar. Shows the path, row counts, a preview, a chart (analysis) and the retrieval path.</td><td>–</td></tr>
+</tbody></table></div>
+
+<h3>When the agent decides alone and when it asks</h3>
+<div class="scroll"><table>
+<thead><tr><th>Situation</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>Database not named <span class="tag chg">changed</span></td><td>Search the index across all in-scope databases; show the top 3–5 as indicator + database + description; the user confirms one. Never ask "which database?" up front.</td></tr>
+<tr><td>Database named ("from CPI")</td><td>Restrict the index search to that database (fuzzy-matched by tool ②); still confirm.</td></tr>
+<tr><td>Same concept in several databases</td><td>Order by the team's database priority; show the source on every candidate.</td></tr>
+<tr><td>A dimension has exactly one valid value</td><td>Fill it in silently.</td></tr>
+<tr><td>The user named the value</td><td>Check it exists, then use it.</td></tr>
+<tr><td>A country group is named</td><td>Expand with tool ⑤; never recite members from memory.</td></tr>
+<tr><td>Start or end date missing</td><td>Always ask; no default window.</td></tr>
+<tr><td>Analysis: a method choice matters (weights, definition of "actual")</td><td>Use the recipe default, show it on the sheet, let the user change it.</td></tr>
+<tr><td>Analysis: no recipe fits</td><td>Say so, offer the closest recipe or the plain data; do not improvise code (see phase 3 in section 6).</td></tr>
+<tr><td>Preview returns zero rows</td><td>Do not say "no data". First check the codes, then whether the sign-in expired or the user lacks access.</td></tr>
+</tbody></table></div>
+
+<!-- 4 -->
+<h2><span class="n">4</span>Toolbox</h2>
+<p>A tool is a Python function the AI can call by name. The AI sees the name, a description and the argument format; the program runs it. Data stays in the workspace; the AI gets back ids, counts and short previews.</p>
+<div class="scroll"><table>
+<thead><tr><th>#</th><th>Tool</th><th>Purpose</th><th>Built on</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">A. Retrieval</td></tr>
+<tr><td>①</td><td><code>idata_search_indicators</code> <span class="tag new">new</span></td><td>Search the indicator index across all in-scope databases; return ranked candidates with database, code, description, unit</td><td>local index (section 5)</td></tr>
+<tr><td>②</td><td><code>idata_find_databases</code></td><td>Fuzzy-match a database the user named; with <code>include_vintages</code>, list WEO vintages (<code>…WEO_LIVE_2025_APR_VINTAGE</code>) for recipes</td><td><code>get_databases()</code>, cached</td></tr>
+<tr><td>③</td><td><code>idata_get_dimensions</code></td><td>A database's dimensions and their order</td><td><code>get_dimensions()</code></td></tr>
+<tr><td>④</td><td><code>idata_search_values</code></td><td>Codes inside one dimension of one database (countries, frequency, the other parts of a CPI-style measure)</td><td><code>get_dimension_values()</code>, cached</td></tr>
+<tr><td>⑤</td><td><code>idata_expand_group</code></td><td>Expand "G7", "advanced economies" into member codes</td><td><code>get_weo_country_groups()</code> / <code>get_weo_country_info()</code></td></tr>
+<tr><td>⑥</td><td><code>idata_get_metadata</code></td><td>Unit, scale and methodology of a series</td><td><code>get_idata_metadata()</code></td></tr>
+<tr><td>⑦</td><td><code>idata_preview</code></td><td>A few rows, to confirm data exists and the user has access</td><td><code>get_idata_data()</code> (head)</td></tr>
+<tr><td>⑧</td><td><code>render_code</code></td><td>Sheet → Python / Stata / R; recipe → Python script</td><td>templates</td></tr>
+<tr><td>⑨</td><td><code>idata_fetch</code></td><td>Retrieve a confirmed sheet, store it as a dataset, write the file. Refuses unconfirmed sheets.</td><td><code>get_idata_data()</code>, child process</td></tr>
+<tr><td>⑩</td><td><code>ask_user</code></td><td>A question with options; rendered by the interface, not executed</td><td>–</td></tr>
+<tr class="grp"><td colspan="4">B. Workspace <span class="tag new">new</span></td></tr>
+<tr><td>⑪</td><td><code>list_input_files</code></td><td>List csv / xlsx / dta files in the input folder the user declared</td><td>local files; that folder only</td></tr>
+<tr><td>⑫</td><td><code>read_input_file</code></td><td>Load one file as a dataset; return its id, columns and 5 rows</td><td>pandas; size limit</td></tr>
+<tr><td>⑬</td><td><code>describe_dataset</code></td><td>Columns, countries, period coverage and gaps of a stored dataset</td><td>dataset store</td></tr>
+<tr class="grp"><td colspan="4">C. Analysis recipes <span class="tag new">new</span> (one tool per recipe, section 6)</td></tr>
+<tr><td>⑭</td><td><code>analysis_forecast_error</code></td><td>Forecast errors of one indicator across WEO vintages</td><td>recipe, pandas</td></tr>
+<tr><td>⑮</td><td><code>analysis_group_aggregate</code></td><td>Weighted aggregate of an indicator over a country group, as a time series</td><td>recipe, pandas</td></tr>
+<tr><td>⑯+</td><td><code>analysis_…</code></td><td>Added one at a time from the same template</td><td>recipe registry</td></tr>
+</tbody></table></div>
+
+<div class="box"><p><strong>Folders are set by the user, not the AI.</strong> The output folder (default Downloads) and the optional input folder are chosen in the interface. Tools ⑪ and ⑫ accept a file name, never a path, and cannot leave the declared folder. Only column names and a short preview of a file go to the model; the full data stays on the machine.</p></div>
+
+<!-- 5 -->
+<h2><span class="n">5</span>The hard step: from plain words to indicator + database</h2>
+<p>Principle unchanged: <strong>the databases' own indicator lists are the only source of truth.</strong> What changes is the scope: instead of one database's list, the agent searches a <b>local index</b> built from the lists of every in-scope database. <code>imf_datatools</code> has no cross-database search, and its caches last only one session, so the index is built ahead of time.</p>
+
+<figure>
+<svg viewBox="0 0 900 330" role="img" aria-label="Build time: a script reads the in-scope databases and writes the index. Query time: the AI writes search phrases, code retrieves about thirty candidates from the index, the AI re-ranks to five, and the user confirms indicator and database together.">
+  <defs><marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1b2430"/></marker></defs>
+  <g fill="none" stroke="#1b2430" stroke-width="1.3" font-size="12.5" font-family="inherit">
+    <text x="15" y="22" fill="#5b6672" stroke="none" font-size="12" font-weight="700">BUILD TIME (monthly, by the team)</text>
+    <rect x="15" y="32" width="250" height="78" rx="6" stroke-dasharray="5 4"/>
+    <text x="140" y="54" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">Build script</text>
+    <text x="140" y="73" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">get_databases() → scope + priority list</text>
+    <text x="140" y="90" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">→ measure dims → get_dimension_values()</text>
+    <rect x="320" y="32" width="300" height="78" rx="6" fill="#dff1ef" stroke="#0f6e73" stroke-width="2"/>
+    <text x="470" y="54" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">Indicator index (one SQLite file)</text>
+    <text x="470" y="73" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">database · priority · dimension · code</text>
+    <text x="470" y="90" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">· description · unit, with full-text search</text>
+    <line x1="265" y1="71" x2="320" y2="71" marker-end="url(#c)"/>
+    <rect x="665" y="32" width="220" height="78" rx="6" stroke-dasharray="5 4"/>
+    <text x="775" y="54" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">Lookup table</text>
+    <text x="775" y="73" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">"gdp growth" → NGDP_RPCH</text>
+    <text x="775" y="90" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">boost only, checked against index</text>
+
+    <text x="15" y="146" fill="#5b6672" stroke="none" font-size="12" font-weight="700">QUERY TIME (each request, seconds)</text>
+    <rect x="15" y="158" width="130" height="66" rx="6" fill="#fbeedd" stroke="#a85f12"/>
+    <text x="80" y="184" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">User's words</text>
+    <text x="80" y="203" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">"real GDP growth"</text>
+    <rect x="165" y="158" width="150" height="66" rx="6" fill="#ece6f6" stroke="#6b4fa0"/>
+    <text x="240" y="180" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">AI: 2–3 phrases</text>
+    <text x="240" y="198" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">+ hints (rate, real,</text>
+    <text x="240" y="213" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">% of GDP …)</text>
+    <line x1="145" y1="191" x2="165" y2="191" marker-end="url(#c)"/>
+    <rect x="335" y="158" width="170" height="66" rx="6" fill="#dff1ef" stroke="#0f6e73"/>
+    <text x="420" y="180" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">Code: search + score</text>
+    <text x="420" y="198" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">full-text → fuzzy, abbrev,</text>
+    <text x="420" y="213" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">boost, priority → ~30</text>
+    <line x1="315" y1="191" x2="335" y2="191" marker-end="url(#c)"/>
+    <line x1="470" y1="110" x2="440" y2="158" marker-end="url(#c)"/>
+    <line x1="740" y1="110" x2="470" y2="158" stroke-dasharray="4 3" marker-end="url(#c)"/>
+    <rect x="525" y="158" width="150" height="66" rx="6" fill="#ece6f6" stroke="#6b4fa0"/>
+    <text x="600" y="180" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">AI: re-rank to 5</text>
+    <text x="600" y="198" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">reads descriptions;</text>
+    <text x="600" y="213" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">can only pick from list</text>
+    <line x1="505" y1="191" x2="525" y2="191" marker-end="url(#c)"/>
+    <rect x="695" y="158" width="190" height="66" rx="6" fill="#fbeedd" stroke="#a85f12"/>
+    <text x="790" y="180" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">User confirms</text>
+    <text x="790" y="198" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">indicator + database</text>
+    <text x="790" y="213" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">+ description, one click</text>
+    <line x1="675" y1="191" x2="695" y2="191" marker-end="url(#c)"/>
+
+    <rect x="335" y="258" width="340" height="50" rx="6" fill="#dff1ef" stroke="#0f6e73"/>
+    <text x="505" y="280" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">Optional preview of the top candidates</text>
+    <text x="505" y="298" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">drops ones with no data for the requested countries or no access</text>
+    <line x1="600" y1="224" x2="600" y2="258" stroke-dasharray="4 3"/>
+    <path d="M790,224 L790,283 L885,283 L885,120 L775,120 L775,110" stroke-dasharray="4 3" marker-end="url(#c)"/>
+    <text x="840" y="300" text-anchor="middle" fill="#5b6672" stroke="none" font-size="11">picks logged</text>
+  </g>
+</svg>
+<figcaption>The thick-bordered index is the only source of codes. The AI writes words and chooses among listed candidates; it never produces a code itself.</figcaption>
+</figure>
+
+<h3>Build time</h3>
+<ol>
+  <li><strong>Scope.</strong> <code>get_databases()</code> lists everything the user can see. A team-owned list keeps the in-scope databases, drops frozen vintages and duplicates, and gives each a priority (e.g. WEO Live first). Vintages stay out of the search index but remain reachable through tool ② for recipes.</li>
+  <li><strong>Measure dimensions.</strong> For each kept database, <code>get_dimensions()</code> tells which dimension holds the indicator (<code>INDICATOR</code> in WEO; <code>INDEX_TYPE</code>, <code>COICOP_1999</code>, <code>TYPE_OF_TRANSFORMATION</code> in CPI-style databases). Each such dimension's values are indexed separately, not every combination, so the index stays small.</li>
+  <li><strong>Write the index.</strong> One row per value: database, database name, priority, dimension, code, description, unit if known, in one local SQLite file with full-text search (Python's built-in <code>sqlite3</code>, nothing to install). Country and frequency lists stay in the per-database cache.</li>
+  <li><strong>Refresh</strong> monthly and after each WEO round, plus a manual button.</li>
+</ol>
+
+<h3>Query time</h3>
+<ol>
+  <li><strong>Phrases.</strong> The AI turns the user's words, in any language, into 2–3 English search phrases plus hints (level or rate, real or nominal, local currency or USD, % of GDP).</li>
+  <li><strong>Retrieve and score, in code.</strong> A fixed SQL full-text query, with only the phrases filled in, returns a few hundred rows. Python then scores them: word overlap, string similarity, abbreviation expansion, exact-code match, lookup-table boost and database priority. The top ~30 are kept.</li>
+  <li><strong>Re-rank.</strong> The AI reads those 30 descriptions against the request and the hints, and picks five. It can only choose from the list.</li>
+  <li><strong>Confirm.</strong> Each candidate shows code, description, unit, database and frequency; the best is pre-selected. If none fit, the user rephrases or names a database.</li>
+  <li><strong>Learn.</strong> The pick is logged as "words → database + code"; the team reviews the log and promotes frequent pairs into the lookup table.</li>
+</ol>
+<p>Several indicators in one request are matched and confirmed separately. If they land in the same database they share one query (<code>NGDP_RPCH+PCPIPCH</code>). If not, they become two query sheets and two files.</p>
+
+<!-- 6 -->
+<h2><span class="n">6</span>Analysis layer: recipes <span class="tag new">new</span></h2>
+<p><strong>Is each analysis a tool?</strong> Yes. Each analysis is a tool the AI calls by name, and all of them are built on one shared template, the <b>recipe</b>. Adding a new analysis means writing one recipe; the tool definition, the confirmation sheet, the script and the tests follow from it.</p>
+
+<h3>The recipe contract</h3>
+<div class="grid">
+  <div class="card"><h4>What every recipe declares</h4>
+  <ul>
+    <li><b>name, version</b>, one-paragraph method note</li>
+    <li><b>parameters</b>, with types and defaults; the tool's argument format is generated from them</li>
+    <li><b>data plan</b>: given the parameters, the list of query sheets it needs</li>
+    <li><b>run</b>: a pure pandas function from datasets to results; no iData calls, no AI</li>
+    <li><b>checks</b>: coverage rules, e.g. refuse when too many countries are missing</li>
+    <li><b>script template</b>: the same calculation as a standalone Python script</li>
+  </ul></div>
+  <div class="card"><h4>Sketch</h4>
+<pre><code>@recipe(name="group_aggregate", version="1")
+class GroupAggregate:
+    indicator: str
+    group: str                    # "G7", "AE", ...
+    weights: str = "PPPGDP"       # NGDPD | LP | equal
+    years: tuple[int, int]
+    min_coverage: float = 0.9
+
+    def data_plan(self) -> list[QuerySpec]: ...
+    def run(self, data: dict[str, Dataset]) -> Result: ...</code></pre></div>
+</div>
+
+<div class="flow">
+  <div class="st ai"><b>AI picks recipe</b>fills parameters from the request</div>
+  <div class="st prog"><b>Recipe → data plan</b>list of query sheets, resolved with tools ①–⑦</div>
+  <div class="st user"><b>User confirms</b>parameters, method choices, data plan: one screen</div>
+  <div class="st prog"><b>Fetch ×N</b>tool ⑨, each into the dataset store</div>
+  <div class="st ana"><b>Recipe runs</b>pandas on dataset ids; result is a new dataset</div>
+  <div class="st prog"><b>Deliver</b>tables, chart, method note, script, sidecar</div>
+</div>
+
+<h3>Why recipes, not "let the AI write the analysis"</h3>
+<ul>
+  <li><strong>Correct by construction.</strong> Weighting, matching vintages to horizons, and handling missing members are where analyses go wrong. Written once, reviewed by an economist, tested on known cases.</li>
+  <li><strong>Same answer every time.</strong> The same request and data give the same numbers, which a free-form script does not guarantee.</li>
+  <li><strong>Data never goes through the model.</strong> Recipes work on dataset ids in the workspace; the AI sees summaries only.</li>
+  <li><strong>Chainable.</strong> A recipe's result is a dataset, so another recipe can use it (e.g. forecast errors of a G7 aggregate).</li>
+</ul>
+
+<h3>Recipe 1: forecast error (<code>analysis_forecast_error</code>)</h3>
+<div class="scroll"><table>
+<thead><tr><th>Item</th><th>Design</th></tr></thead>
+<tbody>
+<tr><td>Question</td><td>How far were WEO forecasts of an indicator from the outcome, by country, horizon and vintage?</td></tr>
+<tr><td>Parameters</td><td>indicator; countries or group; target years; vintages (default: all April and October vintages available in the range); horizon (current year, year ahead, or both)</td></tr>
+<tr><td>Method choices on the sheet</td><td><b>Actual</b> = current WEO Live (default), or first release (the value of year <i>t</i> in a later vintage, e.g. the April <i>t</i>+1 vintage). <b>Sign</b> = actual − forecast (default). <b>Horizon</b> = target year − vintage year.</td></tr>
+<tr><td>Data plan</td><td>Tool ② lists vintage databases (<code>IMF.RES.WEO:WEO_LIVE_YYYY_MON_VINTAGE</code>); one retrieval per vintage with the same key, plus one for the actuals. Recipes pass vintage ids explicitly, so the "no vintage by accident" guard still holds for normal retrieval.</td></tr>
+<tr><td>Outputs</td><td>Long table: country, target year, vintage, horizon, forecast, actual, error. Summary: mean error (bias), MAE, RMSE by country and horizon. Chart of errors over target years.</td></tr>
+<tr><td>Checks</td><td>Warns when a vintage lacks a country or year; never mixes vintages from different WEO rounds into one horizon.</td></tr>
+</tbody></table></div>
+
+<h3>Recipe 2: weighted country-group aggregate (<code>analysis_group_aggregate</code>)</h3>
+<div class="scroll"><table>
+<thead><tr><th>Item</th><th>Design</th></tr></thead>
+<tbody>
+<tr><td>Question</td><td>A time series of an indicator for a country group, weighted by economic size.</td></tr>
+<tr><td>Parameters</td><td>indicator; group (expanded with tool ⑤) or a custom list; years; frequency</td></tr>
+<tr><td>Method choices on the sheet</td><td><b>Weights</b>: GDP at PPP (<code>PPPGDP</code>, default for growth and inflation), GDP in USD (<code>NGDPD</code>), population (<code>LP</code>) or equal. <b>Weight year</b>: same year (default) or a fixed base year. <b>Operation</b>: weighted mean for rates and ratios; sum only for levels in a common currency. The recipe refuses to sum percentages.</td></tr>
+<tr><td>Data plan</td><td>Two retrievals from the same database: the indicator and the weight series, for all members and years.</td></tr>
+<tr><td>Missing members</td><td>Weights are re-scaled over members with data, but only when they cover at least 90% of the group's weight in that year (editable). Otherwise that year is left empty and flagged.</td></tr>
+<tr><td>Cross-check</td><td>If the database already publishes this group's aggregate, it is shown alongside. WEO's own aggregation method may differ, so differences are reported, not "corrected".</td></tr>
+<tr><td>Outputs</td><td>Series by year, member coverage share per year, chart, method note.</td></tr>
+</tbody></table></div>
+
+<h3>Phases</h3>
+<div class="scroll"><table>
+<thead><tr><th>Phase</th><th>Scope</th></tr></thead>
+<tbody>
+<tr><td>1 Retrieval</td><td>Tools ①–⑬, index, folders, three-language code</td></tr>
+<tr><td>2 Recipes</td><td>The recipe template and registry, then forecast error and group aggregate; further recipes from economists' requests (growth rates and rebasing, ratios to GDP, vintage-to-vintage revisions, cross-source comparison)</td></tr>
+<tr><td>3 Free-form</td><td>A general <code>run_python</code> for one-off analyses the recipes do not cover. The AI writes the code; the user reviews and clicks Run (as in the colleague's Workbench). Code that gets reused becomes a recipe.</td></tr>
+</tbody></table></div>
+
+<!-- 7 -->
+<h2><span class="n">7</span>Code generation and execution</h2>
+<p>For a retrieval, the three language versions are a template fill with no AI involved; imf_datatools uses the same query syntax in all three. For a recipe, the script is Python: the retrievals of the data plan followed by the calculation, written out in plain pandas so it runs without this project's package.</p>
+
+<div class="grid">
+  <div class="card"><h4>Python (the one the agent runs)</h4>
+<pre><code>from imf_datatools import idata_utilities
+idata_utilities.PRIVATE = True
+
+db  = 'IMF.RES.WEO:WEO_LIVE'
+key = 'USA+JPN.NGDP_RPCH.A'   # COUNTRY.INDICATOR.FREQUENCY
+df  = idata_utilities.get_idata_data(
+        db, key=key, start='2015', end='2026',
+        longformat=True)
+df.to_csv(r'&lt;output folder&gt;\WEO_LIVE_....csv')</code></pre></div>
+  <div class="card"><h4>Stata</h4>
+<pre><code>idatause private
+idatause data, ///
+    database(IMF.RES.WEO:WEO_LIVE) ///
+    query(USA+JPN.NGDP_RPCH.A) ///
+    tin(2015, 2026) panel(COUNTRY) clear
+export delimited using ///
+    "&lt;output folder&gt;\WEO_LIVE_....csv", replace</code></pre></div>
+  <div class="card"><h4>R</h4>
+<pre><code>library(reticulate)
+use_python("C:/ProgramData/Python3", required = TRUE)
+Sys.setenv(TZ = "UTC")
+imf_datatools &lt;- import("imf_datatools")
+imf_datatools$idata_utilities$PRIVATE &lt;- TRUE
+df &lt;- imf_datatools$get_idata_data(
+  'IMF.RES.WEO:WEO_LIVE', 'USA+JPN.NGDP_RPCH.A',
+  start = '2015', end = '2026', longformat = TRUE)
+write.csv(df, "&lt;output folder&gt;/WEO_LIVE_....csv")</code></pre></div>
+</div>
+
+<h3>Execution</h3>
+<ul>
+  <li><strong>Only Python runs.</strong> Stata and R code is for copying.</li>
+  <li><strong>In a child process.</strong> The first internal-data access opens a browser sign-in that blocks; in a child process the interface stays responsive and shows "waiting for IMF sign-in". Expired sessions (one hour) become "please sign in again". The IMF interpreter is started directly, with no shell.</li>
+  <li><strong>Into the output folder.</strong> The interface sets the folder (default Downloads); the AI cannot change it. File names come from the sheet. Each file has a sidecar <code>.json</code> with the sheet, the analysis sheet if any, the recipe version and the retrieval trace, so a file found later can be traced and re-run.</li>
+  <li><strong>Data plans run in sequence</strong> under one sign-in, with progress shown ("vintage 7 of 20"). A failed retrieval stops the recipe and is reported; partial results are not silently used.</li>
+</ul>
+
+<!-- 8 -->
+<h2><span class="n">8</span>Open questions</h2>
+<div class="box q">
+<ol>
+  <li><b>Index size and scope.</b> How many databases and indicators are accessible, and which databases are in scope for v1, in what priority? (A count-only census script; the economist sets the priority.)</li>
+  <li><b>Vintage coverage.</b> Which WEO vintages exist in iData, and how far back? This limits the forecast-error range.</li>
+  <li><b>Recipe defaults.</b> The economist confirms the defaults: "actual" definition and sign for forecast errors; weights and coverage threshold for aggregates.</li>
+  <li><b>First recipes after these two.</b> Which analyses do economists ask for most often?</li>
+  <li><b>Embeddings.</b> Does the IMF gateway offer an embedding model, as an optional extra score term for indicator search?</li>
+</ol>
+</div>
+
+<p class="muted">Ownership is unchanged: this repository owns the sheets, tools, index, recipes, templates and skill text; the colleague's harness owns the model loop, dispatch, interface and execution process (<code>idata_agent/handoff/README.md</code>).</p>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 1 Data Retrieval</title>
+<style>
+:root{
+  --bg:#f7f8f6; --surface:#fff; --fg:#1b2430; --muted:#5b6672; --line:#d6dbd4;
+  --accent:#0f6e73; --accent-soft:#dff1ef;
+  --ai:#6b4fa0; --ai-soft:#ece6f6; --prog:#0f6e73; --prog-soft:#dff1ef; --user:#a85f12; --user-soft:#fbeedd;
+  --new:#b3261e; --new-soft:#fbe4e2; --code-bg:#f0f2ee;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Segoe UI",Helvetica,Arial,sans-serif;font-size:16.5px;line-height:1.6;padding:0 16px 64px}
+main{max-width:960px;margin:0 auto}
+header{padding:48px 0 24px;border-bottom:1px solid var(--line);margin-bottom:32px}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.phases{display:flex;gap:8px;margin:14px 0 0;flex-wrap:wrap}
+.phases a,.phases span{font-size:14px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);text-decoration:none;color:var(--muted)}
+.phases span{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+h1{font-size:34px;line-height:1.2;margin:8px 0 10px;font-weight:700}
+.lede{font-size:18px;color:var(--muted);margin:0;max-width:42em}
+h2{font-size:24px;margin:48px 0 10px;padding-top:8px;font-weight:700}
+h2 .n{color:var(--accent);margin-right:10px}
+h3{font-size:18px;margin:24px 0 6px}
+p{margin:0 0 12px;max-width:46em}
+ul,ol{margin:0 0 12px;padding-left:22px;max-width:46em}
+li{margin-bottom:4px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.55;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:0 0 14px}
+pre code{background:none;padding:0;overflow-wrap:normal}
+figure{margin:20px 0 24px}
+figure svg{max-width:100%;height:auto;display:block}
+figcaption{font-size:14px;color:var(--muted);margin-top:6px;max-width:46em}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;margin:0 0 18px;background:var(--surface)}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+tr.grp td{background:var(--bg);font-weight:700;font-size:13.5px;color:var(--muted);letter-spacing:.03em}
+.tag{display:inline-block;font-size:12.5px;font-weight:700;padding:1px 8px;border-radius:999px;white-space:nowrap}
+.tag.ai{background:var(--ai-soft);color:var(--ai)}
+.tag.prog{background:var(--prog-soft);color:var(--prog)}
+.tag.user{background:var(--user-soft);color:var(--user)}
+.tag.new{background:var(--new-soft);color:var(--new)}
+.tag.chg{background:var(--user-soft);color:var(--user)}
+.box{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 16px;border-radius:0 6px 6px 0;margin:16px 0;max-width:50em}
+.box.q{border-color:var(--user);background:var(--user-soft)}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:0 0 16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.card h4{margin:0 0 6px;font-size:15px}
+.card p{font-size:14.5px;margin:0 0 4px}
+.card pre{margin:6px 0 0;font-size:12.5px}
+.card ul{font-size:14.5px;margin:0;padding-left:18px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--muted);margin:0 0 10px}
+.legend span i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:14px 0 18px;counter-reset:st}
+.flow .st{flex:1 1 140px;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:6px;padding:8px 10px;font-size:13.5px}
+.flow .st b{display:block;font-size:14.5px;margin-bottom:2px}
+.flow .st.ai{border-top-color:var(--ai)} .flow .st.prog{border-top-color:var(--prog)} .flow .st.user{border-top-color:var(--user)}
+.changes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:14px 0 6px}
+.changes .card{border-left:4px solid var(--new)}
+.muted{color:var(--muted);font-size:14px}
+/* screen mock-ups */
+.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin:12px 0 18px}
+.scr{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;min-width:0;font-size:14px}
+.scr .bar{background:var(--bg);border-bottom:1px solid var(--line);padding:6px 12px;font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.03em}
+.scr .body{padding:10px 12px}
+.scr .msg{background:var(--user-soft);border-radius:8px;padding:6px 10px;margin:0 0 8px}
+.scr .opt{border:1px solid var(--line);border-radius:6px;padding:5px 8px;margin:0 0 5px;font-size:13px}
+.scr .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.scr .fld{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding:3px 0;font-size:13px}
+.scr .fld span:first-child{color:var(--muted)}
+.scr .btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.scr .btn{font-size:12.5px;padding:3px 10px;border-radius:5px;border:1px solid var(--line);background:var(--bg)}
+.scr .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.scr .ok{color:var(--accent);font-weight:700}
+@media (max-width:640px){h1{font-size:27px}}
+@media print{body{padding:0}h2{break-after:avoid}figure,table,.card,.scr{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">FP Knowledge Encoding through AI · architecture · v0.7 · 2026-11-02</div>
+  <h1>iData Agent — Phase 1: Data Retrieval</h1>
+  <p class="lede">The user describes the data in plain words. The agent finds the best-matching indicators across IMF databases, the user picks one and confirms countries, years and frequency, chooses the download options and folder, and the program downloads the file. Afterwards the user can ask for copy-paste code in Stata, R or Python that reproduces the download.</p>
+  <div class="phases"><span>Phase 1 · Data Retrieval</span><a href="architecture_phase2_analysis.html">Phase 2 · Analysis →</a></div>
+</header>
+
+<h2><span class="n">★</span>What changed since v0.6</h2>
+<div class="changes">
+  <div class="card"><h4>Split into two phases</h4><p>Retrieval and analysis now have separate architecture pages. This page covers retrieval only. Analysis recipes, input folders and workspace tools moved to Phase 2.</p></div>
+  <div class="card"><h4>One selection screen</h4><p>The indicator candidates from the index and the other dimensions (country, years, frequency) are confirmed together on one screen. Section 2.</p></div>
+  <div class="card"><h4>Download first, code after</h4><p>After the indicator is confirmed: download options and folder, then a final confirm, then the download. Only then does the user get asked whether they want code, and in which language. Sections 2, 6.</p></div>
+</div>
+<p class="muted">Earlier versions: <code>reference/architecture_v2.html</code> (v0.6, one page for both phases) and <code>reference/architecture.html</code> (v0.5).</p>
+
+<!-- 0 -->
+<h2><span class="n">0</span>The whole flow on one page</h2>
+<div class="legend"><span><i style="background:#6b4fa0"></i>AI judgement</span><span><i style="background:#0f6e73"></i>Program</span><span><i style="background:#a85f12"></i>User</span></div>
+<div class="flow">
+  <div class="st user"><b>1 Input</b>user describes the data</div>
+  <div class="st ai"><b>2 Match</b>index search → top-5 indicators; countries, years, frequency drafted</div>
+  <div class="st user"><b>3 Select</b>pick indicator + database; confirm the other dimensions</div>
+  <div class="st user"><b>4 Download options</b>format, layout, folder</div>
+  <div class="st user"><b>5 Confirm</b>the full query sheet + preview → Download</div>
+  <div class="st prog"><b>6 Download</b>file written to the chosen folder</div>
+  <div class="st user"><b>7 Code?</b>yes → Stata / R / Python → copy-paste code</div>
+</div>
+<p>The AI works only in step 2 (and when the user types a change later, such as "add China"). Steps 3 to 7 are fixed screens driven by the program: the same buttons appear in the same order every time, and nothing is downloaded before the user presses <b>Download</b> in step 5.</p>
+
+<h3>What the user sees</h3>
+<p class="muted">Mock-ups for the request "Real GDP growth for the US and Japan since 2015". Streamlit widgets now, pywebview + HTML later.</p>
+<div class="screens">
+  <div class="scr"><div class="bar">STEP 1 · INPUT</div><div class="body">
+    <div class="msg">Real GDP growth for the US and Japan since 2015</div>
+    <p class="muted" style="margin:0">Typed in the chat box, any language.</p>
+  </div></div>
+
+  <div class="scr"><div class="bar">STEPS 2–3 · SELECT INDICATOR AND DIMENSIONS</div><div class="body">
+    <div class="opt sel">◉ <b>NGDP_RPCH</b> · GDP, constant prices, % change · <i>WEO Live</i> · A</div>
+    <div class="opt">○ NGDP_R · GDP, constant prices, national currency · <i>WEO Live</i></div>
+    <div class="opt">○ NGDP_R_PC_CP_A_PT · Real GDP, % change · <i>QNEA</i> · Q</div>
+    <div class="opt">○ … 2 more · ○ none of these</div>
+    <div class="fld"><span>Countries</span><span>United States (USA), Japan (JPN) <span class="ok">✓</span></span></div>
+    <div class="fld"><span>Years</span><span>2015 – 2026 <span class="ok">✓</span></span></div>
+    <div class="fld"><span>Frequency</span><span>Annual (only option) <span class="ok">✓</span></span></div>
+    <div class="btns"><span class="btn pri">Confirm selection</span></div>
+  </div></div>
+
+  <div class="scr"><div class="bar">STEP 4 · DOWNLOAD OPTIONS</div><div class="body">
+    <div class="fld"><span>File format</span><span>◉ CSV ○ Excel ○ Stata .dta</span></div>
+    <div class="fld"><span>Layout</span><span>◉ long ○ wide</span></div>
+    <div class="fld"><span>Folder</span><span><code>C:\Users\me\Downloads</code> <span class="btn">Change…</span></span></div>
+    <div class="fld"><span>File name</span><span><code>WEO_LIVE_USA+JPN_NGDP_RPCH_A_2015-2026.csv</code></span></div>
+    <div class="btns"><span class="btn pri">Next</span></div>
+  </div></div>
+
+  <div class="scr"><div class="bar">STEP 5 · CONFIRM QUERY SHEET</div><div class="body">
+    <div class="fld"><span>Database</span><span>IMF.RES.WEO:WEO_LIVE</span></div>
+    <div class="fld"><span>Key</span><span><code>USA+JPN.NGDP_RPCH.A</code></span></div>
+    <div class="fld"><span>Period</span><span>2015 – 2026</span></div>
+    <div class="fld"><span>Unit</span><span>percent change</span></div>
+    <div class="fld"><span>Save to</span><span>Downloads\…csv</span></div>
+    <p class="muted" style="margin:6px 0 0">Preview: 3 rows shown, 24 expected.</p>
+    <div class="btns"><span class="btn pri">Download</span><span class="btn">Edit</span></div>
+  </div></div>
+
+  <div class="scr"><div class="bar">STEP 6 · DOWNLOADED</div><div class="body">
+    <p style="margin:0 0 6px"><span class="ok">✓</span> 24 rows saved to<br><code>C:\Users\me\Downloads\WEO_LIVE_USA+JPN_NGDP_RPCH_A_2015-2026.csv</code></p>
+    <p class="muted" style="margin:0">+ sidecar <code>.json</code> with the query sheet. Preview table below.</p>
+  </div></div>
+
+  <div class="scr"><div class="bar">STEP 7 · CODE</div><div class="body">
+    <p style="margin:0 0 6px">Do you want code you can copy and paste to repeat this download?</p>
+    <div class="btns"><span class="btn pri">Yes</span><span class="btn">No</span></div>
+    <p style="margin:10px 0 6px">Which language?</p>
+    <div class="btns"><span class="btn">Stata</span><span class="btn">R</span><span class="btn pri">Python</span></div>
+    <p class="muted" style="margin:8px 0 0">The code block appears with a Copy button (section 6).</p>
+  </div></div>
+</div>
+
+<!-- 1 -->
+<h2><span class="n">1</span>Overall structure</h2>
+<figure>
+<svg viewBox="0 0 900 400" role="img" aria-label="Four layers: chat interface, AI brain, retrieval toolbox, then the IMF data environment and the user's download folder. Knowledge files on the right feed the AI and the toolbox.">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1b2430"/></marker></defs>
+  <g fill="none" stroke="#1b2430" stroke-width="1.3" font-size="13" font-family="inherit">
+    <rect x="20" y="15" width="580" height="66" rx="8" fill="#fbeedd" stroke="#a85f12"/>
+    <text x="40" y="40" fill="#1b2430" stroke="none" font-weight="700" font-size="15">① Chat interface + fixed screens</text>
+    <text x="40" y="63" fill="#1b2430" stroke="none">Chat box, selection screen, download options, confirm, code choice.</text>
+    <line x1="310" y1="81" x2="310" y2="108" marker-end="url(#a)" marker-start="url(#a)"/>
+
+    <rect x="20" y="108" width="580" height="72" rx="8" fill="#ece6f6" stroke="#6b4fa0"/>
+    <text x="40" y="133" fill="#1b2430" stroke="none" font-weight="700" font-size="15">② AI brain (gateway model + flow control)</text>
+    <text x="40" y="156" fill="#1b2430" stroke="none">Turns words into search phrases and drafts; re-ranks candidates; handles edits.</text>
+    <line x1="310" y1="180" x2="310" y2="207" marker-end="url(#a)" marker-start="url(#a)"/>
+
+    <rect x="20" y="207" width="580" height="72" rx="8" fill="#dff1ef" stroke="#0f6e73"/>
+    <text x="40" y="232" fill="#1b2430" stroke="none" font-weight="700" font-size="15">③ Retrieval toolbox (fixed Python functions)</text>
+    <text x="40" y="255" fill="#1b2430" stroke="none">Index search, dimensions, codes, groups, preview, fetch, render code, ask.</text>
+
+    <line x1="150" y1="279" x2="150" y2="310" marker-end="url(#a)"/>
+    <line x1="450" y1="279" x2="450" y2="310" marker-end="url(#a)"/>
+    <rect x="20" y="310" width="270" height="74" rx="8" stroke-dasharray="5 4"/>
+    <text x="36" y="335" fill="#1b2430" stroke="none" font-weight="700">④ IMF data environment</text>
+    <text x="36" y="358" fill="#1b2430" stroke="none" font-size="12.5">company Python, imf_datatools, iData sign-in</text>
+    <rect x="310" y="310" width="290" height="74" rx="8" stroke-dasharray="5 4"/>
+    <text x="326" y="335" fill="#1b2430" stroke="none" font-weight="700">User's download folder</text>
+    <text x="326" y="358" fill="#1b2430" stroke="none" font-size="12.5">chosen in step 4; default Downloads</text>
+
+    <rect x="630" y="108" width="250" height="210" rx="8" stroke-dasharray="5 4"/>
+    <text x="648" y="134" fill="#1b2430" stroke="none" font-weight="700" font-size="15">Knowledge files (team-owned)</text>
+    <text x="648" y="162" fill="#1b2430" stroke="none">· rules given to the AI</text>
+    <text x="648" y="186" fill="#1b2430" stroke="none">· indicator index (SQLite)</text>
+    <text x="648" y="210" fill="#1b2430" stroke="none">· database scope + priority</text>
+    <text x="648" y="234" fill="#1b2430" stroke="none">· lookup + abbreviation tables</text>
+    <text x="648" y="258" fill="#1b2430" stroke="none">· code templates, 3 languages</text>
+    <text x="648" y="282" fill="#1b2430" stroke="none">· retrieval test cases</text>
+    <line x1="630" y1="145" x2="600" y2="145" marker-end="url(#a)"/>
+    <line x1="630" y1="245" x2="600" y2="245" marker-end="url(#a)"/>
+  </g>
+</svg>
+<figcaption>The AI never sees the downloaded data; it gets candidate lists, code lists and a few preview rows. The download itself and the code are produced by ordinary code.</figcaption>
+</figure>
+
+<!-- 2 -->
+<h2><span class="n">2</span>Step by step</h2>
+<div class="scroll"><table>
+<thead><tr><th>Step</th><th>Who</th><th>What happens</th><th>Tools</th></tr></thead>
+<tbody>
+<tr><td>1 Input</td><td><span class="tag user">user</span></td><td>Describes the data in the chat box. May name a database ("from CPI"), countries, groups, years, frequency, or none of these.</td><td>–</td></tr>
+<tr><td>2 Match</td><td><span class="tag ai">AI</span> + <span class="tag prog">program</span></td><td>
+  <b>Indicator + database:</b> the AI writes 2–3 English search phrases and hints; the program searches the index and scores ~30 candidates; the AI re-ranks them to five (section 4).<br>
+  <b>Other dimensions, drafted at the same time:</b> the AI pulls the countries or group, the years and the frequency out of the user's words. They are only <i>drafts</i> until an indicator is picked, because valid codes depend on the database.</td><td>①, ② if a database is named</td></tr>
+<tr><td>3 Select <span class="tag new">new screen</span></td><td><span class="tag user">user</span> + <span class="tag prog">program</span></td><td>
+  One screen shows the five candidates (code, description, unit, database, frequencies) with the best pre-selected, and below them the drafted countries, years and frequency.<br>
+  When the user picks a candidate, the program checks the drafts against <i>that</i> database: countries and groups are resolved to codes, the frequency list is limited to what exists, a missing year range becomes a required field. Problems show inline ("Taiwan: not in this database"). The user fixes them and clicks <b>Confirm selection</b>.</td><td>③ ④ ⑤ ⑥</td></tr>
+<tr><td>4 Download options <span class="tag new">new screen</span></td><td><span class="tag user">user</span></td><td>File format (CSV, Excel, Stata .dta), layout (long or wide), and the folder. The folder defaults to the last one used, else Downloads. The program checks the folder exists and is writable, and shows the file name it will use.</td><td>–</td></tr>
+<tr><td>5 Confirm</td><td><span class="tag user">user</span></td><td>The complete query sheet: database, key, period, unit, file path, plus a few preview rows to show the data exists and the user has access. <b>Download</b> is the only action that fetches data. <b>Edit</b> goes back to step 3 or 4.</td><td>⑦</td></tr>
+<tr><td>6 Download</td><td><span class="tag prog">program</span></td><td>Runs the retrieval in a child process (section 6), writes the file and a sidecar <code>.json</code>, then shows the path, the row count and a preview.</td><td>⑧</td></tr>
+<tr><td>7 Code <span class="tag chg">moved</span></td><td><span class="tag user">user</span> + <span class="tag prog">program</span></td><td>Asks "Do you want code you can copy and paste?" On Yes, offers Stata, R or Python. The chosen version is rendered from a template, with the same database, key, period and file path as the download. No AI involved.</td><td>⑨</td></tr>
+</tbody></table></div>
+
+<h3>Changes typed in the chat</h3>
+<p>At any step the user can type a change ("make it quarterly", "add China", "use CPI instead"). The AI edits the query sheet and the flow goes back to the earliest affected screen: a new indicator returns to step 3, a new folder to step 4. Values that are still valid stay filled in.</p>
+
+<h3>When the agent decides alone and when it asks</h3>
+<div class="scroll"><table>
+<thead><tr><th>Situation</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>Database not named</td><td>Search the index across all in-scope databases; show five candidates with their database. Never ask "which database?" up front.</td></tr>
+<tr><td>Database named ("from CPI")</td><td>Restrict the index search to that database, found with tool ②.</td></tr>
+<tr><td>Same concept in several databases</td><td>Order by the team's database priority; the database is shown on every candidate.</td></tr>
+<tr><td>A dimension has exactly one valid value</td><td>Fill it in and mark it "only option".</td></tr>
+<tr><td>A country group is named ("G7")</td><td>Expand with tool ⑤ and list the members on the selection screen; never from memory.</td></tr>
+<tr><td>Start or end year missing</td><td>Leave the field empty and required; no default window.</td></tr>
+<tr><td>A frozen WEO vintage would match</td><td>Excluded from the index; reachable only if the user asks for a vintage by name (tool ② with <code>include_vintages</code>).</td></tr>
+<tr><td>Preview returns zero rows</td><td>Do not say "no data". Check the codes first, then whether the sign-in expired or the user lacks access.</td></tr>
+</tbody></table></div>
+
+<!-- 3 -->
+<h2><span class="n">3</span>The query sheet and its stages</h2>
+<p>The query sheet (<code>QuerySpec</code>) is the single object every screen reads and writes. It is kept in the interface session (<code>st.session_state</code>), not rebuilt from the chat text on every message, so codes found once are not looked up again.</p>
+<div class="scroll"><table>
+<thead><tr><th>Field</th><th>Example</th><th>Filled in</th></tr></thead>
+<tbody>
+<tr><td>Indicator + database</td><td><code>NGDP_RPCH</code> in <code>IMF.RES.WEO:WEO_LIVE</code></td><td>Step 3, from the index candidates</td></tr>
+<tr><td>Countries</td><td><code>USA + JPN</code></td><td>Drafted in step 2, verified in step 3</td></tr>
+<tr><td>Frequency</td><td><code>A</code></td><td>Step 3</td></tr>
+<tr><td>Other dimensions (CPI-style databases)</td><td>index type, COICOP, transformation</td><td>Step 3; rows are created from the database's own dimensions</td></tr>
+<tr><td>Period</td><td>2015 – 2026</td><td>Drafted in step 2, verified in step 3</td></tr>
+<tr><td>File format, layout</td><td>CSV, long</td><td>Step 4</td></tr>
+<tr><td>Folder, file name</td><td><code>C:\Users\me\Downloads</code>, generated name</td><td>Step 4, by the user; the AI cannot set it</td></tr>
+<tr><td>Code language</td><td>Python</td><td>Step 7, after the download</td></tr>
+</tbody></table></div>
+
+<p>The <code>stage</code> field moves forward only through the screens, and each tool checks it:</p>
+<pre><code>draft → candidates_shown → selected → options_set → confirmed → downloaded → code_rendered</code></pre>
+<p>Tool ⑧ <code>idata_fetch</code> refuses any sheet whose stage is not <code>confirmed</code>, and only the Download button sets that stage. So the confirmation is enforced in code, not only asked for in the AI's instructions.</p>
+
+<!-- 4 -->
+<h2><span class="n">4</span>From plain words to indicator + database: the index</h2>
+<p><code>imf_datatools</code> searches database names only and has no cross-database indicator search; its caches last one session. So the team builds a <b>local indicator index</b> ahead of time from the indicator lists of every in-scope database. The databases' own lists remain the only source of codes.</p>
+
+<figure>
+<svg viewBox="0 0 900 300" role="img" aria-label="Build time: a script reads the in-scope databases and writes the index. Query time: the AI writes search phrases, code retrieves about thirty candidates from the index, the AI re-ranks to five, and the user selects one on the selection screen.">
+  <defs><marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1b2430"/></marker></defs>
+  <g fill="none" stroke="#1b2430" stroke-width="1.3" font-size="12.5" font-family="inherit">
+    <text x="15" y="22" fill="#5b6672" stroke="none" font-size="12" font-weight="700">BUILD TIME (monthly, by the team)</text>
+    <rect x="15" y="32" width="250" height="78" rx="6" stroke-dasharray="5 4"/>
+    <text x="140" y="54" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">Build script</text>
+    <text x="140" y="73" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">get_databases() → scope + priority list</text>
+    <text x="140" y="90" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">→ measure dims → get_dimension_values()</text>
+    <rect x="320" y="32" width="300" height="78" rx="6" fill="#dff1ef" stroke="#0f6e73" stroke-width="2"/>
+    <text x="470" y="54" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">Indicator index (one SQLite file)</text>
+    <text x="470" y="73" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">database · priority · dimension · code</text>
+    <text x="470" y="90" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">· description · unit, with full-text search</text>
+    <line x1="265" y1="71" x2="320" y2="71" marker-end="url(#c)"/>
+    <rect x="665" y="32" width="220" height="78" rx="6" stroke-dasharray="5 4"/>
+    <text x="775" y="54" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">Lookup table</text>
+    <text x="775" y="73" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">"gdp growth" → NGDP_RPCH</text>
+    <text x="775" y="90" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">boost only, checked against index</text>
+
+    <text x="15" y="146" fill="#5b6672" stroke="none" font-size="12" font-weight="700">QUERY TIME (step 2, seconds)</text>
+    <rect x="15" y="158" width="130" height="66" rx="6" fill="#fbeedd" stroke="#a85f12"/>
+    <text x="80" y="184" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">User's words</text>
+    <text x="80" y="203" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">"real GDP growth"</text>
+    <rect x="165" y="158" width="150" height="66" rx="6" fill="#ece6f6" stroke="#6b4fa0"/>
+    <text x="240" y="180" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">AI: 2–3 phrases</text>
+    <text x="240" y="198" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">+ hints (rate, real,</text>
+    <text x="240" y="213" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">% of GDP …)</text>
+    <line x1="145" y1="191" x2="165" y2="191" marker-end="url(#c)"/>
+    <rect x="335" y="158" width="170" height="66" rx="6" fill="#dff1ef" stroke="#0f6e73"/>
+    <text x="420" y="180" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">Code: search + score</text>
+    <text x="420" y="198" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">full-text → fuzzy, abbrev,</text>
+    <text x="420" y="213" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">boost, priority → ~30</text>
+    <line x1="315" y1="191" x2="335" y2="191" marker-end="url(#c)"/>
+    <line x1="470" y1="110" x2="440" y2="158" marker-end="url(#c)"/>
+    <line x1="740" y1="110" x2="470" y2="158" stroke-dasharray="4 3" marker-end="url(#c)"/>
+    <rect x="525" y="158" width="150" height="66" rx="6" fill="#ece6f6" stroke="#6b4fa0"/>
+    <text x="600" y="180" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">AI: re-rank to 5</text>
+    <text x="600" y="198" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">reads descriptions;</text>
+    <text x="600" y="213" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">can only pick from list</text>
+    <line x1="505" y1="191" x2="525" y2="191" marker-end="url(#c)"/>
+    <rect x="695" y="158" width="190" height="66" rx="6" fill="#fbeedd" stroke="#a85f12"/>
+    <text x="790" y="180" text-anchor="middle" fill="#1b2430" stroke="none" font-weight="700">Selection screen</text>
+    <text x="790" y="198" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">user picks one, with</text>
+    <text x="790" y="213" text-anchor="middle" fill="#1b2430" stroke="none" font-size="11.5">countries, years, freq.</text>
+    <line x1="675" y1="191" x2="695" y2="191" marker-end="url(#c)"/>
+    <path d="M790,224 L790,262 L885,262 L885,120 L775,120 L775,110" stroke-dasharray="4 3" marker-end="url(#c)"/>
+    <text x="840" y="280" text-anchor="middle" fill="#5b6672" stroke="none" font-size="11">picks logged</text>
+  </g>
+</svg>
+<figcaption>The thick-bordered index is the only source of indicator codes. The AI writes words and chooses among listed candidates; it never produces a code itself.</figcaption>
+</figure>
+
+<h3>Build time</h3>
+<ol>
+  <li><strong>Scope.</strong> <code>get_databases()</code> lists everything the user can see. A team-owned list keeps the in-scope databases, drops frozen vintages and duplicates, and gives each a priority (e.g. WEO Live first).</li>
+  <li><strong>Measure dimensions.</strong> For each kept database, <code>get_dimensions()</code> tells which dimension holds the indicator (<code>INDICATOR</code> in WEO; <code>INDEX_TYPE</code>, <code>COICOP_1999</code>, <code>TYPE_OF_TRANSFORMATION</code> in CPI-style databases). Each such dimension's values are indexed separately, not every combination.</li>
+  <li><strong>Write the index.</strong> One row per value: database, database name, priority, dimension, code, description, unit if known, in one SQLite file with full-text search (built-in <code>sqlite3</code>, nothing to install). Country and frequency lists stay in the per-database cache.</li>
+  <li><strong>Refresh</strong> monthly and after each WEO round, plus a manual button.</li>
+</ol>
+
+<h3>Query time</h3>
+<ol>
+  <li><strong>Phrases.</strong> The AI turns the user's words, in any language, into 2–3 English search phrases plus hints (level or rate, real or nominal, local currency or USD, % of GDP).</li>
+  <li><strong>Retrieve and score, in code.</strong> A fixed full-text SQL query, with only the phrases filled in, returns a few hundred rows. Python scores them: word overlap, string similarity, abbreviation expansion, exact-code match, lookup-table boost and database priority. The top ~30 are kept. The AI never writes SQL.</li>
+  <li><strong>Re-rank.</strong> The AI reads those 30 descriptions against the request and picks five. It can only choose from the list.</li>
+  <li><strong>Select.</strong> The five go to the selection screen (step 3). If none fit, the user picks "none of these" and rephrases or names a database.</li>
+  <li><strong>Learn.</strong> Each pick is logged as "words → database + code"; the team promotes frequent pairs into the lookup table.</li>
+</ol>
+<p>Several indicators in one request ("GDP growth and inflation") get one candidate list each on the same screen. If the picks land in the same database they share one query (<code>NGDP_RPCH+PCPIPCH</code>) and one file; otherwise they become separate query sheets and files.</p>
+
+<!-- 5 -->
+<h2><span class="n">5</span>Toolbox</h2>
+<p>A tool is a Python function the AI or a screen can call by name. The AI sees the name, a description and the argument format; the program runs it.</p>
+<div class="scroll"><table>
+<thead><tr><th>#</th><th>Tool</th><th>Purpose</th><th>Called by</th><th>Built on</th></tr></thead>
+<tbody>
+<tr><td>①</td><td><code>idata_search_indicators</code></td><td>Search the index; return ranked candidates with database, code, description, unit</td><td>AI (step 2)</td><td>local index</td></tr>
+<tr><td>②</td><td><code>idata_find_databases</code></td><td>Match a database the user named; list WEO vintages only when asked</td><td>AI (step 2)</td><td><code>get_databases()</code>, cached</td></tr>
+<tr><td>③</td><td><code>idata_get_dimensions</code></td><td>The picked database's dimensions and their order</td><td>screen (step 3)</td><td><code>get_dimensions()</code></td></tr>
+<tr><td>④</td><td><code>idata_search_values</code></td><td>Verify countries, frequency and other codes in that database</td><td>screen (step 3)</td><td><code>get_dimension_values()</code>, cached</td></tr>
+<tr><td>⑤</td><td><code>idata_expand_group</code></td><td>Expand "G7", "advanced economies" into member codes</td><td>screen (step 3)</td><td><code>get_weo_country_groups()</code></td></tr>
+<tr><td>⑥</td><td><code>idata_get_metadata</code></td><td>Unit, scale and methodology shown on the sheet</td><td>screen (steps 3, 5)</td><td><code>get_idata_metadata()</code></td></tr>
+<tr><td>⑦</td><td><code>idata_preview</code></td><td>A few rows, to show data exists and the user has access</td><td>screen (step 5)</td><td><code>get_idata_data()</code> (head)</td></tr>
+<tr><td>⑧</td><td><code>idata_fetch</code></td><td>Download a confirmed sheet to the chosen folder, with sidecar. Refuses unconfirmed sheets.</td><td>Download button only</td><td><code>get_idata_data()</code>, child process</td></tr>
+<tr><td>⑨</td><td><code>render_code</code></td><td>Query sheet → Stata, R or Python code that repeats the download</td><td>screen (step 7)</td><td>templates (<code>idata_agent/codegen</code>)</td></tr>
+<tr><td>⑩</td><td><code>ask_user</code></td><td>A free question with options, when the AI needs one (e.g. two meanings of a word)</td><td>AI</td><td>rendered by the interface</td></tr>
+</tbody></table></div>
+<p>Tools ③ – ⑨ are called by screens, not chosen by the AI. The AI's own tools in Phase 1 are only ①, ② and ⑩, plus editing the query sheet. That keeps its job small and its mistakes visible.</p>
+
+<!-- 6 -->
+<h2><span class="n">6</span>Download and code</h2>
+<h3>Download (step 6)</h3>
+<ul>
+  <li><strong>Child process.</strong> The first internal-data access opens a browser sign-in that blocks. In a child process the interface stays responsive and shows "waiting for IMF sign-in". An expired session (one hour) becomes "please sign in again". The IMF Python interpreter is started directly, with no shell.</li>
+  <li><strong>Folder.</strong> Set by the user in step 4: a text box with the path (Streamlit has no native folder picker; a "Browse…" dialog via tkinter is optional, pywebview has a native one). The last folder is remembered. The AI cannot change it.</li>
+  <li><strong>File name</strong> comes from the sheet: <code>&lt;database&gt;_&lt;countries&gt;_&lt;indicator&gt;_&lt;freq&gt;_&lt;start&gt;-&lt;end&gt;.&lt;ext&gt;</code>, shortened when the country list is long. An existing file is never overwritten silently; a suffix is added.</li>
+  <li><strong>Sidecar</strong> <code>.json</code> next to the file: the query sheet, the time of download, the package versions. A file found later can be traced and re-run.</li>
+  <li><strong>Values</strong> are saved as published, with scale and unit columns added, so nothing is rescaled without saying so.</li>
+</ul>
+
+<h3>Code (step 7)</h3>
+<p>The code is rendered after the download, so it uses the same database, key, period and file path as the file the user already has. Only the language the user picks is shown, with a Copy button and a "Show another language" link. Stata and R code is for copying; it is not run by the agent.</p>
+<div class="grid">
+  <div class="card"><h4>Python</h4>
+<pre><code>from imf_datatools import idata_utilities
+idata_utilities.PRIVATE = True
+
+db  = 'IMF.RES.WEO:WEO_LIVE'
+key = 'USA+JPN.NGDP_RPCH.A'   # COUNTRY.INDICATOR.FREQUENCY
+df  = idata_utilities.get_idata_data(
+        db, key=key, start='2015', end='2026',
+        longformat=True)
+df.to_csv(r'C:\Users\me\Downloads\WEO_LIVE_....csv',
+          index=False)</code></pre></div>
+  <div class="card"><h4>Stata</h4>
+<pre><code>idatause private
+idatause data, ///
+    database(IMF.RES.WEO:WEO_LIVE) ///
+    query(USA+JPN.NGDP_RPCH.A) ///
+    tin(2015, 2026) panel(COUNTRY) clear
+export delimited using ///
+    "C:\Users\me\Downloads\WEO_LIVE_....csv", replace</code></pre></div>
+  <div class="card"><h4>R</h4>
+<pre><code>library(reticulate)
+use_python("C:/ProgramData/Python3", required = TRUE)
+Sys.setenv(TZ = "UTC")
+imf_datatools &lt;- import("imf_datatools")
+imf_datatools$idata_utilities$PRIVATE &lt;- TRUE
+df &lt;- imf_datatools$get_idata_data(
+  'IMF.RES.WEO:WEO_LIVE', 'USA+JPN.NGDP_RPCH.A',
+  start = '2015', end = '2026', longformat = TRUE)
+write.csv(df, "C:/Users/me/Downloads/WEO_LIVE_....csv",
+          row.names = FALSE)</code></pre></div>
+</div>
+<p class="muted">The templates already exist in <code>idata_agent/codegen</code>; the change is when they are shown (after the download, one language at a time) and that the real output path is filled in.</p>
+
+<!-- 7 -->
+<h2><span class="n">7</span>Open questions</h2>
+<div class="box q">
+<ol>
+  <li><b>Index scope.</b> How many databases and indicators are accessible, and which are in scope for v1, in what priority? (A count-only census script run on an IMF machine; the economist sets the priority.)</li>
+  <li><b>FTS5.</b> Does the IMF Python's <code>sqlite3</code> include full-text search? If not, a plain table plus Python scoring is enough at this size.</li>
+  <li><b>Frequencies on the candidate list.</b> Showing which frequencies each candidate has needs one extra lookup per candidate, or storing it in the index at build time.</li>
+  <li><b>Embeddings.</b> Does the IMF gateway offer an embedding model, as an optional extra score term?</li>
+</ol>
+</div>
+
+<p class="muted">Ownership: this repository owns the query sheet, tools, index, templates and AI instructions; the colleague's harness owns the model loop, the screens and the download process (<code>idata_agent/handoff/README.md</code>). Next: <a href="architecture_phase2_analysis.html">Phase 2 · Analysis</a>.</p>
+
+</main>
+</body>
+</html>
