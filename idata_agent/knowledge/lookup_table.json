@@ -1,0 +1,59 @@
+{
+  "_comment": "Team-maintained lookup table: phrase -> code(s), per database and dimension. It is a SUPPLEMENT to the database's own value list: a hit only boosts the candidate's score in idata_search_values. The candidate must still exist in the live list and still be confirmed by the user. On every search the table is checked against the list and entries pointing at unknown codes are reported as lookup_issues. Seed entries below use standard WEO mnemonics; verify each against a real idata_list_values run before relying on it.",
+  "_review": "Confirmed user picks are appended to knowledge/lookup_review.jsonl by the agent core; review that file periodically and promote stable, frequent pairs here.",
+  "IMF.RES.WEO:WEO_LIVE": {
+    "INDICATOR": {
+      "gdp growth": ["NGDP_RPCH"],
+      "real gdp growth": ["NGDP_RPCH"],
+      "real gdp": ["NGDP_R"],
+      "nominal gdp": ["NGDP"],
+      "nominal gdp usd": ["NGDPD"],
+      "gdp per capita usd": ["NGDPDPC"],
+      "inflation": ["PCPIPCH"],
+      "cpi": ["PCPI"],
+      "cpi inflation": ["PCPIPCH"],
+      "unemployment rate": ["LUR"],
+      "unemployment": ["LUR"],
+      "population": ["LP"],
+      "current account": ["BCA"],
+      "current account percent of gdp": ["BCA_NGDPD"],
+      "fiscal balance": ["GGXCNL_NGDP"],
+      "fiscal deficit": ["GGXCNL_NGDP"],
+      "primary balance": ["GGXONLB_NGDP"],
+      "government debt": ["GGXWDG_NGDP"],
+      "public debt": ["GGXWDG_NGDP"],
+      "government revenue": ["GGR_NGDP"],
+      "government expenditure": ["GGX_NGDP"],
+      "import volume growth": ["TM_RPCH"],
+      "export volume growth": ["TX_RPCH"]
+    }
+  },
+  "IMF.RES:WEO": {
+    "INDICATOR": {
+      "gdp growth": ["NGDP_RPCH"],
+      "real gdp growth": ["NGDP_RPCH"],
+      "inflation": ["PCPIPCH"],
+      "unemployment rate": ["LUR"]
+    }
+  },
+  "IMF.STA:CPI": {
+    "INDEX_TYPE": {
+      "cpi": ["CPI"],
+      "consumer price index": ["CPI"]
+    },
+    "COICOP_1999": {
+      "all items": ["_T"],
+      "headline": ["_T"],
+      "total": ["_T"]
+    },
+    "TYPE_OF_TRANSFORMATION": {
+      "index": ["IX"],
+      "level": ["IX"],
+      "yoy": ["YOY_PCH_PA_PT"],
+      "year on year": ["YOY_PCH_PA_PT"],
+      "annual inflation": ["YOY_PCH_PA_PT"],
+      "month on month": ["POP_PCH_PA_PT"],
+      "period on period": ["POP_PCH_PA_PT"]
+    }
+  }
+}

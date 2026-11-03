@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cross-Database Indicator Search</title>
+<style>
+:root{
+  --bg:#f7f8f6; --surface:#fff; --fg:#1b2430; --muted:#5b6672; --line:#d6dbd4;
+  --accent:#0f6e73; --accent-soft:#dff1ef;
+  --ai:#6b4fa0; --ai-soft:#ece6f6; --user:#a85f12; --user-soft:#fbeedd;
+  --good:#1f7a3a; --good-soft:#e1f3e5; --bad:#b3261e; --bad-soft:#fbe4e2; --mid:#9a6200; --mid-soft:#fbefd6;
+  --code-bg:#f0f2ee;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;padding:0 16px 64px}
+main{max-width:940px;margin:0 auto}
+header{padding:44px 0 22px;border-bottom:1px solid var(--line);margin-bottom:26px}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:30px;line-height:1.25;margin:8px 0 10px}
+.lede{font-size:17.5px;color:var(--muted);margin:0;max-width:46em}
+h2{font-size:22px;margin:42px 0 10px}
+h2 .n{color:var(--accent);margin-right:10px}
+h3{font-size:17px;margin:20px 0 6px}
+p{margin:0 0 12px;max-width:50em}
+ul,ol{margin:0 0 12px;padding-left:22px;max-width:50em}
+li{margin-bottom:4px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em;background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+.box{border-left:3px solid var(--accent);background:var(--accent-soft);padding:11px 16px;border-radius:0 6px 6px 0;margin:16px 0;max-width:54em}
+.box.q{border-color:var(--user);background:var(--user-soft)}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:0 0 18px;background:var(--surface)}
+th,td{text-align:left;vertical-align:top;padding:9px 11px;border-bottom:1px solid var(--line)}
+th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+td:first-child{font-weight:600}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 9px;border-radius:999px;white-space:nowrap}
+.good{background:var(--good-soft);color:var(--good)} .bad{background:var(--bad-soft);color:var(--bad)} .mid{background:var(--mid-soft);color:var(--mid)}
+.lanes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 18px}
+.lane{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.lane h4{margin:0 0 2px;font-size:15.5px}
+.lane .sub{font-size:13.5px;color:var(--muted);margin:0 0 8px}
+.lane ol{margin:0;padding-left:20px;font-size:14.5px}
+.lane li{margin-bottom:6px}
+.who{display:inline-block;font-size:11.5px;font-weight:700;padding:0 7px;border-radius:999px;margin-right:4px;vertical-align:1px}
+.who.p{background:var(--accent-soft);color:var(--accent)} .who.a{background:var(--ai-soft);color:var(--ai)} .who.u{background:var(--user-soft);color:var(--user)}
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0 18px;max-width:720px}
+.mock .ask{font-size:14px;color:var(--muted);margin-bottom:10px}
+.cand{display:grid;grid-template-columns:22px 1fr;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:14.5px}
+.cand:first-of-type{border-top:0}
+.cand .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted);margin-top:4px}
+.cand.sel .dot{border-color:var(--accent);background:var(--accent)}
+.cand b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px}
+.cand .meta{color:var(--muted);font-size:13px}
+.btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btns span{font-size:13.5px;padding:5px 12px;border-radius:6px;border:1px solid var(--line)}
+.btns span.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+.muted{color:var(--muted);font-size:14px}
+@media (max-width:700px){.lanes{grid-template-columns:1fr}h1{font-size:25px}}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="eyebrow">FP Knowledge Encoding through AI · proposal · 2026-11-02</div>
+  <h1>Finding the right indicator across all iData databases</h1>
+  <p class="lede">The economist's principle: the user should do as little as possible. So the agent, not the user, picks the database. From one sentence it returns the top 3–5 indicators, each with its database and official description, and the user confirms once.</p>
+</header>
+
+<div class="box">
+<p><b>Recommendation in one line:</b> yes, build one combined indicator file, but treat it as a <b>search index the program queries</b>, not a file the AI reads. Build it offline from a curated list of databases. At query time, ordinary code narrows it to about 30 candidates, the AI re-ranks them to a top 5, and the user confirms with one click.</p>
+</div>
+
+<h2><span class="n">1</span>Why an index is needed</h2>
+<ul>
+  <li><code>imf_datatools</code> has <b>no cross-database indicator search</b>. <code>get_databases(keyword=…)</code> only matches database names and descriptions; <code>get_dimension_values(db, dim, keyword=…)</code> searches one database at a time, by substring.</li>
+  <li>Its caching is <b>in-memory, per session</b>. Every new session would have to call every database again.</li>
+  <li>A database description rarely lists the indicators inside it, so "pick the database first by its description" misses a lot.</li>
+</ul>
+<p>So to answer "which database has real GDP growth?" without asking the user, we need our own list of every (database, indicator) pair.</p>
+
+<h2><span class="n">2</span>Options compared</h2>
+<div class="scroll"><table>
+<thead><tr><th>Option</th><th>How it works</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>A. Giant file given to the AI</td><td>Put every indicator of every database in the prompt and let the model choose</td><td><span class="tag bad">No</span> Likely far too large for the context window, slow and costly on every request, and the model may "remember" a code that is not in the file</td></tr>
+<tr><td>B. Live search at query time</td><td>For each request, loop over all databases and call <code>get_dimension_values(keyword=…)</code></td><td><span class="tag bad">No</span> Hundreds of calls per request; substring search only ("inflation" will not find "consumer prices")</td></tr>
+<tr><td>C. Database first, then indicator</td><td>AI picks 2–3 databases from the catalogue descriptions, then searches inside them</td><td><span class="tag mid">Fallback</span> Needs no index, but misses indicators that sit in databases with vague descriptions</td></tr>
+<tr><td>D. Local index + search + AI re-rank</td><td>Build the combined list offline; code retrieves ~30 candidates; AI re-ranks to top 5</td><td><span class="tag good">Recommended</span> Fast (local), every code is real, and the AI's judgement is used only where it helps</td></tr>
+</tbody></table></div>
+
+<h2><span class="n">3</span>Recommended design</h2>
+<div class="lanes">
+  <div class="lane">
+    <h4>Build time: the indicator index</h4>
+    <p class="sub">A script run by the team; refresh monthly, plus a manual button</p>
+    <ol>
+      <li><span class="who p">code</span><code>get_databases()</code>, then apply a <b>curated list</b> of in-scope databases. Drop frozen vintages (<code>WEO_LIVE_2025…</code>) and duplicates; give each kept database a priority (e.g. WEO Live above derived products).</li>
+      <li><span class="who p">code</span>For each database: <code>get_dimensions()</code>, find the measure dimension(s) (<code>INDICATOR</code>, or for CPI-style databases <code>INDEX_TYPE</code>, <code>COICOP_1999</code>, …).</li>
+      <li><span class="who p">code</span><code>get_dimension_values()</code> on those dimensions only. Index each dimension's values separately, not every combination, so the file does not explode.</li>
+      <li><span class="who p">code</span>Save one row per value: <code>database, database name, priority, dimension, code, description, unit (if known)</code>. A local SQLite file with full-text search is enough; country and frequency lists stay per-database, as now.</li>
+    </ol>
+  </div>
+  <div class="lane">
+    <h4>Query time: from words to top 5</h4>
+    <p class="sub">Each user request; takes seconds, no iData calls until the preview</p>
+    <ol>
+      <li><span class="who a">AI</span>Turns the user's words into 2–3 English search phrases and hints (rate vs. level, real vs. nominal, % of GDP…). It writes words, never codes.</li>
+      <li><span class="who p">code</span>Searches the index: word match + fuzzy match + abbreviation table + lookup-table boost + database priority. Keeps the top ~30.</li>
+      <li><span class="who a">AI</span>Re-ranks those 30 by reading the descriptions against the request and picks 5. It can only choose from the list.</li>
+      <li><span class="who p">code</span>Optional: a tiny preview fetch for the top candidates, to drop ones with no data for the requested countries.</li>
+      <li><span class="who u">user</span>Sees the top 5 and confirms one (or rephrases). The pick is logged to grow the lookup table.</li>
+    </ol>
+  </div>
+</div>
+
+<h3>What the user sees</h3>
+<div class="mock">
+  <div class="ask">"Real GDP growth for the US and Japan since 2015"</div>
+  <div class="cand sel"><span class="dot"></span><div><b>NGDP_RPCH</b> · Gross domestic product, constant prices, percent change<div class="meta">WEO Live (IMF.RES.WEO:WEO_LIVE) · annual · data found for USA, JPN</div></div></div>
+  <div class="cand"><span class="dot"></span><div><b>…</b> · Real GDP, percent change, quarterly<div class="meta">another quarterly national accounts database · quarterly</div></div></div>
+  <div class="cand"><span class="dot"></span><div><b>…</b> · GDP, constant prices, national currency (level)<div class="meta">WEO Live · annual · level, not growth</div></div></div>
+  <div class="btns"><span class="pri">Use selected</span><span>None of these, search again</span></div>
+</div>
+<p class="muted">Illustrative only: the second and third rows show the kind of differences the card should make visible (frequency, level vs. growth, source). Real candidates come from the index.</p>
+
+<h3>Handling the hard cases</h3>
+<ul>
+  <li><b>Same concept in several databases.</b> Database priority decides the default (the economist supplies the ranking); the others appear lower in the list with their source shown.</li>
+  <li><b>Composite measures (CPI-style).</b> The index finds the database and the main measure value; the remaining measure dimensions (transformation, index type) are then resolved inside that database, as in the current design.</li>
+  <li><b>Synonyms the word match misses</b> ("inflation" vs. "consumer prices"). Covered first by the AI writing several search phrases and by the abbreviation and lookup tables. If tests still show misses, add embedding search as one more score term, if the IMF gateway offers an embedding model.</li>
+  <li><b>Access differs by user.</b> The index may list databases a given user cannot open. The preview step catches this and the candidate is dropped or flagged.</li>
+</ul>
+
+<h2><span class="n">4</span>What this changes in the current architecture</h2>
+<ul>
+  <li><b>Database step:</b> v0.5 says "never infer the database, ask the user". This proposal reverses it: the agent infers the database and the user confirms it <b>together with the indicator</b>, in one step.</li>
+  <li><b>Tools:</b> a new <code>idata_search_indicators(phrases, hints)</code> searches across databases and replaces the "find database, then search values" pair for the indicator. <code>idata_find_databases</code> stays for users who name a database.</li>
+  <li><b>Knowledge files:</b> new <code>indicator_index.sqlite</code>, database scope and priority list, and a build script. The existing per-database cache and lookup table are reused.</li>
+</ul>
+
+<div class="box q">
+<p><b>To settle before building</b></p>
+<ol>
+  <li><b>Size:</b> how many databases and indicators are actually accessible? A one-off census script (count only) answers this in one run on an IMF machine.</li>
+  <li><b>Scope and priority:</b> which databases are in scope for v1, and in what order of preference? This needs the economist.</li>
+  <li><b>Embeddings:</b> does the IMF gateway offer an embedding model? This is not needed for v1, but useful to know.</li>
+  <li><b>Refresh:</b> who runs the index build, and how often? Monthly is suggested, WEO Live around each round.</li>
+</ol>
+</div>
+
+<p class="muted">Basis: <code>reference/imf_datatools_doc.pdf</code> (sections on <code>get_databases</code>, <code>get_dimensions</code>, <code>get_dimension_values</code>), <code>reference/idata_codebook_v1.docx</code>, architecture v0.5.</p>
+
+</main>
+</body>
+</html>

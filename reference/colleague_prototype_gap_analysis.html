@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype Gap Analysis</title>
+<style>
+:root{
+  --bg:#f7f8f6; --surface:#fff; --fg:#1b2430; --muted:#5b6672; --line:#d6dbd4;
+  --accent:#0f6e73; --accent-soft:#dff1ef;
+  --done:#1f7a3a; --done-soft:#e1f3e5;
+  --part:#9a6200; --part-soft:#fbefd6;
+  --miss:#b3261e; --miss-soft:#fbe4e2;
+  --conf:#6b4fa0; --conf-soft:#ece6f6;
+  --extra:#3d5a80; --extra-soft:#e3ebf5;
+  --code-bg:#f0f2ee;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Segoe UI",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;padding:0 16px 64px}
+main{max-width:1040px;margin:0 auto}
+header{padding:44px 0 22px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:32px;line-height:1.2;margin:8px 0 10px;font-weight:700}
+.lede{font-size:17.5px;color:var(--muted);margin:0;max-width:46em}
+h2{font-size:23px;margin:46px 0 8px;padding-top:8px;font-weight:700}
+h2 .n{color:var(--accent);margin-right:10px}
+h3{font-size:17.5px;margin:24px 0 6px}
+p{margin:0 0 12px;max-width:50em}
+ul,ol{margin:0 0 12px;padding-left:22px;max-width:50em}
+li{margin-bottom:4px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em;background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:0 0 18px;background:var(--surface)}
+th,td{text-align:left;vertical-align:top;padding:9px 11px;border-bottom:1px solid var(--line)}
+th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--bg)}
+td:first-child{font-weight:600;min-width:130px}
+td.st{white-space:nowrap}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 9px;border-radius:999px;white-space:nowrap}
+.done{background:var(--done-soft);color:var(--done)}
+.part{background:var(--part-soft);color:var(--part)}
+.miss{background:var(--miss-soft);color:var(--miss)}
+.conf{background:var(--conf-soft);color:var(--conf)}
+.extra{background:var(--extra-soft);color:var(--extra)}
+.legend{display:flex;flex-wrap:wrap;gap:10px 16px;font-size:14px;color:var(--muted);margin:10px 0 18px}
+.box{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 16px;border-radius:0 6px 6px 0;margin:16px 0;max-width:56em}
+.box.warn{border-color:var(--conf);background:var(--conf-soft)}
+.box p:last-child,.box ul:last-child{margin-bottom:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.stat b{display:block;font-size:28px;line-height:1.1}
+.stat span{font-size:13.5px;color:var(--muted)}
+.stat.done b{color:var(--done)} .stat.part b{color:var(--part)} .stat.miss b{color:var(--miss)} .stat.conf b{color:var(--conf)}
+.stat.done,.stat.part,.stat.miss,.stat.conf{background:var(--surface)}
+.layers{display:grid;gap:10px;margin:14px 0 18px}
+.layer{display:grid;grid-template-columns:230px 1fr 110px;gap:14px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.layer h4{margin:0;font-size:15.5px}
+.layer p{margin:0;font-size:14.5px}
+.layer .tag{justify-self:end}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:0 0 16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.card h4{margin:0 0 6px;font-size:15px}
+.card p{font-size:14.5px;margin:0 0 4px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px}
+.flow div{flex:1 1 120px;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:6px;padding:8px 10px;font-size:13.5px}
+.flow div b{display:block;font-size:14.5px}
+.flow .f-done{border-top-color:var(--done)} .flow .f-part{border-top-color:var(--part)} .flow .f-miss{border-top-color:var(--miss)}
+.muted{color:var(--muted);font-size:14px}
+@media (max-width:700px){.layer{grid-template-columns:1fr}.layer .tag{justify-self:start}h1{font-size:26px}}
+@media print{body{padding:0}h2{break-after:avoid}table,.card,.layer{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="eyebrow">FP Knowledge Encoding through AI · gap analysis · 2026-10-28</div>
+  <h1>Colleague's prototype vs. iData Query Agent Architecture v0.5</h1>
+  <p class="lede">What the Streamlit chatbot in <code>data_retrieving_published_rl</code> already does, measured step by step against the architecture in <code>reference/architecture.html</code>, and what is still missing.</p>
+</header>
+
+<h2><span class="n">0</span>Summary</h2>
+<p>The colleague's prototype already covers most of the <b>runtime shell</b>: a working chat UI, the IMF OpenAI gateway with sign-in, a bounded tool-calling loop, and iData tools for discovery, dimension inspection, value search, country-group expansion, availability probe and fetch. The fetch tool builds the key in the database's own dimension order and refuses codes that were not returned by a search tool, which is the same safety idea as our verified query sheet.</p>
+<p>What it does not have is the <b>"query sheet" discipline</b> of our design: there is no QuerySpec object, no confirmation gate in code, no Python / Stata / R code generation, no structured <code>ask_user</code>, no local codebook cache or lookup table, and the file is offered as a browser download instead of being written to Downloads with a sidecar. It also <b>defaults to WEO Live</b>, which conflicts with our decision that the database is never inferred.</p>
+
+<div class="stats">
+  <div class="stat done"><b>15</b><span>Done: matches the design</span></div>
+  <div class="stat part"><b>24</b><span>Partial: exists, but weaker or prompt-only</span></div>
+  <div class="stat miss"><b>14</b><span>Missing</span></div>
+  <div class="stat conf"><b>2</b><span>Conflict: default database (sheet + resolve rules)</span></div>
+</div>
+<div class="legend">
+  <span><span class="tag done">Done</span> implemented as designed</span>
+  <span><span class="tag part">Partial</span> present, but only in the prompt, or missing a key part</span>
+  <span><span class="tag miss">Missing</span> not implemented</span>
+  <span><span class="tag conf">Conflict</span> implemented differently from a design decision</span>
+  <span><span class="tag extra">Extra</span> beyond the architecture</span>
+</div>
+<p class="muted">Paths below are relative to <code>data_retrieving_published_rl/data_retrieving-github/</code>. "Prompt-only" means the behaviour is requested in <code>SYSTEM_PROMPT</code> (<code>openai_agent.py:23</code>) but not enforced by code.</p>
+
+<!-- ================================================================== -->
+<h2><span class="n">1</span>Overall structure: the four parts</h2>
+
+<div class="layers">
+  <div class="layer">
+    <h4>① Chat interface</h4>
+    <p>Streamlit chat (<code>streamlit_app.py:415</code>), live "Running &lt;tool&gt;" status, retrieval-path expander, CSV / Stata download buttons, optional manual iData and SDMX explorers. Missing: a confirmation-sheet view, option buttons for <code>ask_user</code>, code tabs, and the swappable event channel (UI calls the agent function directly). pywebview not started (planned later anyway).</p>
+    <span class="tag part">Partial</span>
+  </div>
+  <div class="layer">
+    <h4>② AI brain (model + flow control)</h4>
+    <p><code>run_openai_agent</code> (<code>openai_agent.py:602</code>): gateway client, tool loop, max 32 calls, no parallel calls, tool exceptions returned as <code>{"error": ...}</code>. Flow order is partly enforced in code (database → dimensions → values → fetch). Missing: a QuerySpec held across turns (state is reset every request), stage tracking, and the confirm gate.</p>
+    <span class="tag part">Partial</span>
+  </div>
+  <div class="layer">
+    <h4>③ Toolbox</h4>
+    <p>8 iData tools plus ~25 tools for other sources. 6 of our 9 tools have a counterpart; <code>render_code</code> and <code>ask_user</code> do not exist, and <code>idata_get_metadata</code> is internal only. Details in section 4.</p>
+    <span class="tag part">Partial</span>
+  </div>
+  <div class="layer">
+    <h4>④ IMF data environment</h4>
+    <p><code>idata_client.py</code> wraps <code>imf_datatools</code> with <code>PRIVATE = True</code>; <code>check_environment()</code> diagnostics; MSAL sign-in with token cache for the gateway (<code>imf_openai_helper.py</code>). Works on IMF Windows without bash.</p>
+    <span class="tag done">Done</span>
+  </div>
+  <div class="layer">
+    <h4>Knowledge files</h4>
+    <p>Rules exist, but as one long inline prompt (≈160 lines, mostly OECD / BIS / SDMX). No cached indicator list per database, no lookup table, no code templates, no NL test cases (unit tests with mocks exist: <code>test_clients.py</code> etc.).</p>
+    <span class="tag miss">Mostly missing</span>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<h2><span class="n">2</span>The query sheet (QuerySpec)</h2>
+<p>There is no QuerySpec object. The nearest equivalent is the per-request <code>state</code> dict (<code>database</code>, <code>dimensions</code>, <code>resolved_codes</code>) and the <code>dimension_values</code> argument of <code>fetch_imf_data</code>. Good news: it is already <b>dimension-generic</b>, like our design, not four fixed fields.</p>
+<div class="scroll"><table>
+<thead><tr><th>Sheet row</th><th>Architecture</th><th>Colleague's prototype</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Sheet object</td><td>One QuerySpec filled step by step, words → verified code → description; stage <code>draft → resolved → confirmed → executed</code></td><td>Loose <code>state</code> dict, rebuilt from scratch every user turn (<code>openai_agent.py:612</code>). No user words, no descriptions, no stage.</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>Database</td><td>Never inferred. Ask, fuzzy-match the answer against the catalogue, confirm the id</td><td><code>select_default_imf_database</code> picks <code>IMF.RES.WEO:WEO_LIVE</code> whenever no source is named. Has a good vintage guard (frozen <code>WEO_LIVE_*</code> rejected unless <code>release="vintage"</code>).</td><td class="st"><span class="tag conf">Conflict</span></td></tr>
+<tr><td>Dimension rows</td><td>Created from <code>get_dimensions()</code>, one row per dimension</td><td><code>inspect_database_dimensions</code>; key built in official order and segment count validated (<code>idata_client.validate_key</code>)</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>Country</td><td>Validated against the country list; groups via tool</td><td><code>resolve_dimension_values</code> (keyword search) + <code>expand_weo_country_group</code></td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>Indicator</td><td>Top 5 from the cached full list, user confirms; several joined with <code>+</code></td><td>Full list scanned and ranked; <code>+</code> supported. But all ranked candidates are returned and all are marked "resolved"; confirmation is prompt-only.</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Frequency</td><td>A dimension like any other; single value filled silently; several → ask</td><td>Resolved like any dimension; no auto-fill rule, no forced question</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Time</td><td>Always ask if start or end missing; AI converts relative dates</td><td><code>start_period</code> / <code>end_period</code> passed through; may be null (= everything). Asking is prompt-only.</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Output</td><td>Long CSV in Downloads by default; xlsx / dta options</td><td>Agent always fetches long format; CSV / .dta via download button; xlsx only in the Format workspace</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Code language</td><td>Python default, user can switch to Stata / R</td><td>Not present</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+</tbody></table></div>
+
+<!-- ================================================================== -->
+<h2><span class="n">3</span>Lifecycle of one request</h2>
+<div class="flow">
+  <div class="f-done"><b>1 Intake</b>Done</div>
+  <div class="f-part"><b>2 Parse</b>Partial</div>
+  <div class="f-done"><b>3 Resolve</b>Done, rules partial</div>
+  <div class="f-part"><b>4 Confirm</b>Prompt-only</div>
+  <div class="f-miss"><b>5 Generate</b>Missing</div>
+  <div class="f-part"><b>6 Execute</b>Partial</div>
+  <div class="f-part"><b>7 Deliver</b>Partial</div>
+</div>
+<div class="scroll"><table>
+<thead><tr><th>Step</th><th>Architecture</th><th>Colleague's prototype</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>1 Intake</td><td>User types in the chat box</td><td><code>st.chat_input</code>, example prompts on an empty chat, full text history sent to the model</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>2 Parse</td><td>AI drafts the sheet in the user's words; decides new request vs. edit of the previous one</td><td>The model parses implicitly; nothing is written down. Follow-ups ("add Korea") work through chat history, but every tool result from the previous turn is gone, so everything is re-resolved.</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>3 Resolve</td><td>Fixed order: database → dimensions → codes → time → preview</td><td>Order enforced by code: values need a selected database and inspected dimensions; fetch accepts only codes returned by a search tool (<code>openai_agent.py:530</code>). Preview = <code>availability_only</code> probe.</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>4 Confirm</td><td>Full sheet (words → code → description) + generated code; nothing runs before confirmation</td><td>The prompt says "agree the specification before the full fetch". No code gate: the model can call a full fetch at any time. The "Review &amp; hand-off" stage confirms <i>after</i> the fetch, which is a different thing.</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>5 Generate</td><td>Templates render Python, Stata, R; same text the agent runs</td><td>No code generation. The manual explorer shows only the key string. The Workbench can run model-proposed Python, but that is free-form code, not a template.</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>6 Execute</td><td>Python only, separate process, unit and scale attached, readable errors, sign-in expiry translated</td><td>Python only, but in the Streamlit process (a blocking sign-in freezes the UI). Unit and scale are attached and values are divided by 10<sup>scale</sup> (<code>idata_client.enrich_data</code>). Errors become one sentence; sign-in expiry is not special-cased.</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>7 Deliver</td><td>File in Downloads, rows/columns, 5-row preview, retrieval path, sidecar .json</td><td>Table preview, CSV / .dta download buttons, "Suggested retrieval path" (tool names + status), lineage saved per dataset. No automatic file in Downloads; per-file sidecar replaced by <code>metadata.json</code> inside the hand-off ZIP.</td><td class="st"><span class="tag part">Partial</span></td></tr>
+</tbody></table></div>
+
+<h3>Resolve: when to decide alone and when to ask</h3>
+<div class="scroll"><table>
+<thead><tr><th>Situation</th><th>Architecture</th><th>Colleague's prototype</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Dimension has one valid value</td><td>Fill silently</td><td>No such logic</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>User named the value</td><td>Check it exists, then use it</td><td>Must come back from <code>resolve_dimension_values</code> before fetch accepts it</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>One obvious match</td><td>Use it, show the mapping on the sheet</td><td>Prompt-only; no sheet to show it on</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Several plausible candidates</td><td>List code + description + difference; user picks</td><td>Prompt asks for 3–5 options, rendered as chat text, not as a pick list</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Country group named</td><td>Expand with the tool, never from memory</td><td><code>expand_weo_country_group</code> (WEO databases only)</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>Start or end date missing</td><td>Always ask, no default window</td><td>Prompt mentions "still-needed period choices"; null periods are accepted by the tool</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Database not named</td><td>Ask the user</td><td>Defaults to WEO Live</td><td class="st"><span class="tag conf">Conflict</span></td></tr>
+<tr><td>Preview returns zero rows</td><td>Check the codes, then whether sign-in expired</td><td>Strong prompt rules (access error ≠ no data, try alternatives); no sign-in check in code</td><td class="st"><span class="tag part">Partial</span></td></tr>
+</tbody></table></div>
+
+<!-- ================================================================== -->
+<h2><span class="n">4</span>Toolbox: the nine tools</h2>
+<div class="scroll"><table>
+<thead><tr><th>Our tool</th><th>Colleague's counterpart</th><th>Difference</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>① idata_find_databases</td><td><code>search_imf_databases</code> + <code>select_imf_database</code> + <code>select_default_imf_database</code></td><td>Keyword search via <code>get_databases(keyword=…)</code>, not fuzzy; catalogue refreshed on every call (<code>refresh=True</code>); WEO Live default. Has the vintage guard, which we lack.</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>② idata_get_dimensions</td><td><code>inspect_database_dimensions</code></td><td>Same function, same role</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>③ idata_search_values</td><td><code>search_indicator_catalog</code> (indicator) and <code>resolve_dimension_values</code> (other dimensions)</td><td>Indicator: full list + fuzzy ranking, close to ours. Other dimensions: <code>imf_datatools</code> keyword search, first 80 rows, no ranking. No local cache, no lookup boost, no hints.</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>④ idata_expand_group</td><td><code>expand_weo_country_group</code></td><td>Same two <code>imf_datatools</code> calls. Errors if the name matches 0 or several groups (ours returns candidates).</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>⑤ idata_get_metadata</td><td><code>fetch_metadata</code> (internal)</td><td>Used only to label scale / unit after fetch; the model cannot read unit or methodology before confirmation</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>⑥ idata_preview</td><td><code>fetch_imf_data(availability_only=true)</code></td><td>Returns count, latest period, units, 5-row sample; does not replace the downloadable frame</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>⑦ render_code</td><td>none</td><td>No templates, no Stata / R output</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>⑧ idata_fetch</td><td><code>fetch_imf_data(availability_only=false)</code></td><td>No "confirmed sheet" precondition; runs in-process; result goes to the session (download button), not to a file</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>⑨ ask_user</td><td>none</td><td>Questions are ordinary assistant text; no option list, no structured answer</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+</tbody></table></div>
+<div class="box">
+<p><b>Error envelope.</b> Ours separates <code>invalid_call</code> / <code>environment_error</code> / <code>precondition_failed</code> so the model knows whether retrying helps. The prototype returns <code>{"error": "&lt;message&gt;"}</code> for everything. <span class="tag part">Partial</span></p>
+</div>
+
+<!-- ================================================================== -->
+<h2><span class="n">5</span>The hard step: plain words to an indicator code</h2>
+<p>The colleague reached the same core principle independently: <b>scan the database's own full indicator list and rank it</b> (<code>metadata_search.rank_metadata</code>). The supporting pieces around it are missing.</p>
+<div class="scroll"><table>
+<thead><tr><th>Pipeline step</th><th>Architecture</th><th>Colleague's prototype</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Foundation list</td><td><code>get_dimension_values(db, indicator_dim)</code>, full list</td><td>Same call; indicator dimension found by name / description (<code>chat_query.find_dimension</code>)</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>Local cache (3 months)</td><td>Downloaded once per database, saved to disk</td><td>Fetched on every call; no cache layer of its own</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>Non-indicator "indicator" dims</td><td>CPI-style: indicator = several dimensions</td><td>Only one "indicator" dimension supported in <code>search_indicator_catalog</code>; others go through keyword search</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Search phrase + hints</td><td>AI produces an English phrase plus hints (rate / level, constant / current…)</td><td>Model supplies a query string; no hints parameter</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Scoring</td><td>Word overlap + string similarity + abbreviation table + exact code</td><td>IDF-weighted word coverage + <code>SequenceMatcher</code> + 4 hard-coded aliases + exact code bonus + a hard-coded "growth → RPCH" bonus</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>Lookup-table boost</td><td>Team table adds score, never bypasses the list; validated on load</td><td>None (the 3-entry alias dict in <code>chat_query.py</code> is not used by the agent)</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>Top 5, user confirms</td><td>Code · description · unit; best pre-selected; one click</td><td>Every matching row is returned (no limit) and all of them count as "resolved", so the fetch guard does not force a choice; confirmation is prompt-only</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Feed the lookup table</td><td>Log "words → code" picks for team review</td><td>Not logged</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>Several indicators</td><td>Matched separately, one query joined with <code>+</code></td><td>Supported in the key builder (max 100 codes per dimension)</td><td class="st"><span class="tag done">Done</span></td></tr>
+</tbody></table></div>
+
+<!-- ================================================================== -->
+<h2><span class="n">6</span>Code generation and execution</h2>
+<div class="scroll"><table>
+<thead><tr><th>Item</th><th>Architecture</th><th>Colleague's prototype</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Three-language code</td><td>Python / Stata / R from one sheet, shown as tabs</td><td>Not present</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>Code shown = code run</td><td>Same text</td><td>Not applicable: the agent calls <code>imf_datatools</code> directly, no script exists</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>Only Python runs</td><td>Yes</td><td>Yes for data retrieval</td><td class="st"><span class="tag done">Done</span></td></tr>
+<tr><td>Separate process, no shell</td><td>Child process with the IMF interpreter; UI shows "waiting for sign-in"</td><td>Fetch runs inside Streamlit. The Workbench already has a reusable timed child-process runner (<code>code_runner.run_python</code>, 30 s limit).</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>Sign-in expiry</td><td>Translated to "please sign in again"</td><td>Generic error text</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>File to Downloads</td><td>Name derived from the sheet, written automatically</td><td>Browser download button (<code>imf_data.csv</code>), or ZIP package after hand-off</td><td class="st"><span class="tag miss">Missing</span></td></tr>
+<tr><td>Sidecar .json</td><td>Sheet + retrieval trace beside the file</td><td><code>metadata.json</code> per dataset inside the ZIP (sources, request, key, coverage warnings)</td><td class="st"><span class="tag part">Partial</span></td></tr>
+<tr><td>No general "run any Python" for the AI in v1</td><td>Planned for phase 3</td><td>Model can only <i>propose</i> Python / PowerShell / Bash; the user must click Run in the Workbench</td><td class="st"><span class="tag done">Done</span></td></tr>
+</tbody></table></div>
+
+<!-- ================================================================== -->
+<h2><span class="n">7</span>What the prototype has beyond the architecture</h2>
+<div class="grid">
+  <div class="card"><h4><span class="tag extra">Extra</span> Multi-source research</h4><p>IMF SDMX, DataMapper, OECD, BIS, FRED, US Treasury, each with discover → inspect → resolve → fetch tools, plus <code>combine_retrieved_data</code> for one long CSV across sources.</p></div>
+  <div class="card"><h4><span class="tag extra">Extra</span> Review &amp; hand-off</h4><p>Each retrieval becomes a dataset with coverage warnings (missing periods, duplicates); the user acknowledges and freezes a selection under <code>handoffs/</code>, downloadable as ZIP.</p></div>
+  <div class="card"><h4><span class="tag extra">Extra</span> Format agent</h4><p>A second model (<code>formatting_agent.py</code>) that filters, pivots and builds Excel workbooks from handed-off data, without fetching or aggregating.</p></div>
+  <div class="card"><h4><span class="tag extra">Extra</span> Workbench</h4><p>User-triggered Python / PowerShell / Bash runners with timeouts. Effectively our phase-3 executor, gated by a human click.</p></div>
+  <div class="card"><h4><span class="tag extra">Extra</span> Vintage guard</h4><p>Frozen <code>WEO_LIVE_*</code> vintages are rejected unless explicitly requested. Worth adopting in our <code>idata_find_databases</code>.</p></div>
+  <div class="card"><h4><span class="tag extra">Extra</span> Gateway sign-in</h4><p>MSAL interactive sign-in with a local token cache; this is the piece our handoff assumed the harness would provide.</p></div>
+</div>
+
+<!-- ================================================================== -->
+<h2><span class="n">8</span>How the two pieces fit, and what is left</h2>
+<p>The prototype is, in effect, the "harness side" our <code>idata_agent/handoff/README.md</code> describes: model loop, dispatch, UI, sign-in. Our repository holds the other half: QuerySpec, the nine tool implementations with caching and the lookup table, codegen, and the skill text. Merging them closes most gaps.</p>
+
+<h3>Take from the colleague as is</h3>
+<ul>
+  <li>Streamlit UI, the gateway client (<code>imf_openai_helper.py</code>) and the loop in <code>run_openai_agent</code>.</li>
+  <li><code>idata_client.enrich_data</code> / <code>validate_key</code> logic and the vintage guard.</li>
+  <li><code>code_runner.run_python</code> as the base for running <code>idata_fetch</code> in a child process.</li>
+</ul>
+
+<h3>Plug in from our side</h3>
+<ol>
+  <li><b>Tools:</b> route the iData tool names to <code>idata_agent.tools.implementation(name)</code>, with schemas from <code>to_openai_tools()</code>. Gives fuzzy database match, cached codebooks, top-5 indicator search with lookup boost, and <code>render_code</code>.</li>
+  <li><b>QuerySpec in session state:</b> keep one sheet per conversation in <code>st.session_state</code> so follow-up edits do not re-resolve everything.</li>
+  <li><b>Confirm gate in code:</b> render the sheet + three code tabs; only the Confirm button sets <code>stage = "confirmed"</code>; <code>idata_fetch</code> refuses otherwise.</li>
+  <li><b><code>idata_fetch</code>:</b> from <code>handoff/executor_reference.py</code>, run in a child process, write to Downloads with sidecar.</li>
+  <li><b><code>ask_user</code>:</b> intercept in the loop and render as option buttons.</li>
+  <li><b>System prompt:</b> use <code>SKILL.md</code> for the iData part; keep the colleague's OECD / BIS / SDMX rules for the other sources.</li>
+  <li><b>Logging:</b> append confirmed indicator picks to <code>knowledge/lookup_review.jsonl</code>.</li>
+</ol>
+
+<div class="box warn">
+<p><b>Decide with the colleague:</b></p>
+<ul>
+  <li><b>Default database.</b> The prototype starts with WEO Live; our design asks. Options: keep asking, or show WEO Live as a pre-selected first candidate that the user still confirms.</li>
+  <li><b>Confirm before vs. after fetch.</b> His Review &amp; hand-off confirms the result; ours confirms the query. They can coexist, but the pre-fetch gate is what stops wrong codes being downloaded.</li>
+  <li><b>Scope.</b> Our architecture is iData-only. Decide whether the other sources stay in v1 or are kept behind a switch.</li>
+</ul>
+</div>
+
+<p class="muted">Basis: colleague's repo at commit <code>d1d123d</code>; architecture v0.5 (2026-10-26) and <code>idata_agent/</code> on branch <code>sl_skills_tools</code>. The prototype's code was read, not run; statuses describe the code as written.</p>
+
+</main>
+</body>
+</html>

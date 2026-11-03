@@ -1,28 +1,17 @@
-# Archived: custom LLM-API harness
+# Archived files
 
-These three files are an earlier design: a custom JSON-schema tool-calling harness (Anthropic
-and OpenAI/Azure OpenAI/IMF-gateway variants) that let a model call iData through function
-calling, with a Python dispatcher executing those calls against `imf_datatools` directly.
+Earlier designs kept for reference. Nothing here is imported by the current code.
 
-They're superseded by the primary approach now used in this skill: a `SKILL.md` plus
-`scripts/fetch_idata.py`, invoked via the host agent's own Bash tool (Claude Code, GitHub
-Copilot CLI, or any other Agent-Skills-compatible host). That approach needs no custom model
-client, no gateway auth code, and — since it never imports `openai`/`anthropic` — never hits
-the `aiohttp`/`openai` version-conflict bug that blocked the custom-harness path on an IMF
-Windows machine.
+| File | Status |
+|---|---|
+| `tool_schemas.py` | Promoted and extended into `idata_agent/tools/schemas.py` (nine tools, spec-based fetch, provider conversion helpers). |
+| `dispatcher.py` | Promoted into `idata_agent/tools/dispatcher.py`, now with stage preconditions (`idata_fetch` refuses an unconfirmed spec). |
+| `test_harness.py` | Its mock `imf_datatools` became `idata_agent/evals/mock_idata.py`. The provider loop (Anthropic / OpenAI / Azure / IMF gateway envelopes) is the starting point for the agent core's provider adapter, still to be written. |
+| `fetch_idata.py` | The CLI script of the previous skill version. Its scale/unit logic, output validation and `--expand-group` moved into `idata_agent/tools/executor.py` and `idata_agent/tools/resolve.py`; the CLI is now `python -m idata_agent.cli`. |
 
-**Files here:**
-- `tool_schemas.py` — 5 iData tools as Anthropic-format JSON schemas (portable to OpenAI's
-  function-calling format with a small wrapper).
-- `dispatcher.py` — executes a `(tool_name, arguments)` call against `imf_datatools`,
-  serializing pandas DataFrames to JSON. Tested with mocked `imf_datatools`; never run against
-  the real package (no IMF network access from the dev environment this was built in).
-- `test_harness.py` — a CLI agent loop wiring a real Anthropic/OpenAI/Azure OpenAI/IMF-gateway
-  client to those tools, for watching whether a model follows the skill's rules (discover
-  before guessing, ask when ambiguous).
-
-**When to revive this:** only if it turns out IMF does *not* provision Claude Code, GitHub
-Copilot CLI, or another Agent-Skills-compatible host — i.e. if the only way to reach an LLM at
-all is a custom API client. If that's the case, this stack already solves the auth/tool-calling
-problem; the newer `fetch_idata.py` script can likely still be reused as the thing `dispatcher.py`
-shells out to or reimplements, since its metadata (scale/unit) logic is architecture-independent.
+Why the direction changed: the first version assumed the skill would run inside a host agent
+(Claude Code, Copilot CLI) and shelled out to `fetch_idata.py`. The project is now a standalone
+chat application with its own front end, and the IMF gateway was confirmed to generate tool
+calls, so the custom tool-calling design came back on the critical path. The skill text
+(`../SKILL.md`) is written to serve both: hosts run the tools through `idata_agent.cli`, the
+harness calls `idata_agent.tools.dispatcher.call_tool` directly.

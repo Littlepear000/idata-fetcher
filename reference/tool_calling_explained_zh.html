@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>工具调用原理</title>
+<style>
+:root{
+  --bg:#f7f8f6; --surface:#fff; --fg:#1b2430; --muted:#5b6672; --line:#d6dbd4;
+  --accent:#0f6e73; --accent-soft:#dff1ef;
+  --ai:#6b4fa0; --ai-soft:#ece6f6; --prog:#0f6e73; --prog-soft:#dff1ef; --user:#a85f12; --user-soft:#fbeedd;
+  --warn:#b3261e; --warn-soft:#fbe4e2;
+  --code-bg:#f0f2ee;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Segoe UI","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.75;padding:0 16px 64px}
+main{max-width:920px;margin:0 auto}
+header{padding:44px 0 22px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.eyebrow{font-size:13px;letter-spacing:.06em;color:var(--muted);font-weight:600}
+h1{font-size:30px;line-height:1.3;margin:8px 0 10px}
+.lede{font-size:17.5px;color:var(--muted);margin:0}
+h2{font-size:22px;margin:44px 0 10px}
+h2 .n{color:var(--accent);margin-right:10px}
+h3{font-size:17px;margin:22px 0 6px}
+p{margin:0 0 12px}
+ul,ol{margin:0 0 12px;padding-left:22px}
+li{margin-bottom:4px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em;background:var(--code-bg);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.55;background:var(--code-bg);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;margin:0 0 14px}
+pre code{background:none;padding:0}
+.c{color:var(--muted)}
+.box{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 16px;border-radius:0 6px 6px 0;margin:16px 0}
+.box.warn{border-color:var(--warn);background:var(--warn-soft)}
+.box p:last-child,.box ul:last-child{margin-bottom:0}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0 18px}
+.role{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--line);border-radius:8px;padding:12px 14px}
+.role h4{margin:0 0 4px;font-size:15.5px}
+.role p{margin:0;font-size:14.5px}
+.role.prog{border-top-color:var(--prog)} .role.ai{border-top-color:var(--ai)} .role.user{border-top-color:var(--user)}
+.steps{counter-reset:s;list-style:none;padding:0;margin:14px 0}
+.steps>li{counter-increment:s;position:relative;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px 12px 52px;margin-bottom:10px}
+.steps>li::before{content:counter(s);position:absolute;left:14px;top:12px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+.steps>li b.who{display:inline-block;font-size:12px;padding:0 8px;border-radius:999px;margin-right:6px}
+.who.prog{background:var(--prog-soft);color:var(--prog)} .who.ai{background:var(--ai-soft);color:var(--ai)} .who.user{background:var(--user-soft);color:var(--user)}
+.steps pre{margin:8px 0 0}
+figure{margin:18px 0 22px}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:14px;color:var(--muted);margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:0 0 18px;background:var(--surface)}
+th,td{text-align:left;vertical-align:top;padding:9px 11px;border-bottom:1px solid var(--line)}
+th{font-size:13px;color:var(--muted);font-weight:600;background:var(--bg)}
+.scroll{overflow-x:auto}
+.muted{color:var(--muted);font-size:14px}
+@media (max-width:640px){h1{font-size:25px}}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="eyebrow">FP Knowledge Encoding through AI · 技术说明 · 2026-10-29</div>
+  <h1>没有 CLI，AI 怎么"调用工具"、怎么"跑 Python"？</h1>
+  <p class="lede">以同事的原型 <code>data_retrieving_published_rl</code> 为例，讲清楚 IMF OpenAI API 下工具调用的原理。</p>
+</header>
+
+<div class="box">
+<p><b>一句话：</b>模型本身什么都不执行。它只会回一段文字，内容是"请帮我调用某个函数，参数是这些"。真正执行的是<b>你电脑上一个普通的 Python 程序</b>：它读到这段请求，自己去跑对应的函数，再把结果发回给模型。这样来回几轮，就是"Agent"。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="n">1</span>三个角色</h2>
+<div class="roles">
+  <div class="role prog"><h4>你电脑上的 Python 程序</h4><p>同事的 Streamlit 应用。它既是聊天界面，也是"执行员"：所有函数（查 iData、下载数据、跑代码）都在这里运行，用的是你本机的 Python 和 <code>imf_datatools</code>。</p></div>
+  <div class="role ai"><h4>IMF OpenAI Gateway</h4><p>一个网址（<code>API_URL</code>）。程序通过 HTTPS 把消息发过去，gateway 转给 GPT 模型，再把回复传回来。它只传文字，不碰你的电脑。</p></div>
+  <div class="role ai"><h4>GPT 模型（云端）</h4><p>只做一件事：读消息，回消息。回复要么是给用户的文字，要么是一张"工具调用单"（JSON）。它看不到你的文件，也不能运行任何东西。</p></div>
+</div>
+
+<figure>
+<svg viewBox="0 0 860 250" role="img" aria-label="程序与模型之间的往返">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#5b6672"/></marker></defs>
+  <rect x="10" y="30" width="300" height="190" rx="10" fill="#dff1ef" stroke="#0f6e73"/>
+  <text x="160" y="58" text-anchor="middle" font-size="16" font-weight="700" fill="#0f6e73">你的电脑（IMF Windows）</text>
+  <rect x="30" y="75" width="260" height="40" rx="6" fill="#fff" stroke="#d6dbd4"/>
+  <text x="160" y="100" text-anchor="middle" font-size="14" fill="#1b2430">Streamlit 程序：发消息、执行工具</text>
+  <rect x="30" y="125" width="260" height="40" rx="6" fill="#fff" stroke="#d6dbd4"/>
+  <text x="160" y="150" text-anchor="middle" font-size="14" fill="#1b2430">工具函数：imf_datatools 等</text>
+  <rect x="30" y="175" width="260" height="34" rx="6" fill="#fff" stroke="#d6dbd4"/>
+  <text x="160" y="197" text-anchor="middle" font-size="13" fill="#5b6672">数据、文件、iData 登录都在这里</text>
+  <rect x="380" y="85" width="170" height="80" rx="10" fill="#fff" stroke="#6b4fa0"/>
+  <text x="465" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#6b4fa0">IMF Gateway</text>
+  <text x="465" y="142" text-anchor="middle" font-size="12.5" fill="#5b6672">HTTPS，只传文字</text>
+  <rect x="620" y="70" width="230" height="110" rx="10" fill="#ece6f6" stroke="#6b4fa0"/>
+  <text x="735" y="108" text-anchor="middle" font-size="16" font-weight="700" fill="#6b4fa0">GPT 模型</text>
+  <text x="735" y="132" text-anchor="middle" font-size="13" fill="#1b2430">读消息 → 回文字</text>
+  <text x="735" y="152" text-anchor="middle" font-size="13" fill="#1b2430">或回"工具调用单"</text>
+  <line x1="310" y1="100" x2="378" y2="100" stroke="#5b6672" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="550" y1="100" x2="618" y2="100" stroke="#5b6672" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="618" y1="150" x2="552" y2="150" stroke="#5b6672" stroke-width="1.6" marker-end="url(#a)"/>
+  <line x1="378" y1="150" x2="312" y2="150" stroke="#5b6672" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="464" y="40" text-anchor="middle" font-size="13" fill="#5b6672">去：对话 + 工具清单 + 上一步的工具结果</text>
+  <text x="464" y="210" text-anchor="middle" font-size="13" fill="#5b6672">回：文字回答，或"请调用 X(参数)"</text>
+</svg>
+<figcaption>所有"动手"的事都发生在左边。右边只负责"动脑"：决定下一步调用哪个工具、填什么参数。</figcaption>
+</figure>
+
+<!-- ============================================================ -->
+<h2><span class="n">2</span>为什么 IMF 电脑上能做到</h2>
+<p>Claude Code、Codex 这类 CLI 被禁止，是因为它们是现成的、能直接在电脑上执行命令的软件。同事的做法不需要任何这类软件：</p>
+<ul>
+  <li>调用 API 只是一个普通的<b>网络请求</b>，用 <code>pip</code> 装的 <code>openai</code> Python 包就能发。</li>
+  <li>gateway 的接口和 OpenAI 官方格式一样（"OpenAI-compatible"），所以只要把 <code>base_url</code> 改成 IMF 的地址。</li>
+  <li>身份验证分两层：<code>.env</code> 里的 <code>API_KEY</code>，加上一次 IMF 微软账号登录（<code>msal</code> 包弹出浏览器，token 缓存在本地，之后不用再登）。</li>
+</ul>
+<p>对应代码就这几行（<code>imf_openai_helper.py</code>）：</p>
+<pre><code>client = OpenAI(
+    api_key="DUMMY",                      <span class="c"># 不用 OpenAI 官方 key</span>
+    base_url=config["API_URL"],           <span class="c"># IMF gateway 地址</span>
+    default_headers={
+        "api-key": config["API_KEY"],             <span class="c"># 部门发的 key</span>
+        "Authorization": f"Bearer {access_token}", <span class="c"># 微软登录拿到的 token</span>
+    },
+)</code></pre>
+<p>换句话说，<b>CLI 工具里那个"让模型调用工具的循环"，同事用大约 60 行 Python 自己写了一遍</b>（<code>openai_agent.py</code> 里的 <code>run_openai_agent</code>）。</p>
+
+<!-- ============================================================ -->
+<h2><span class="n">3</span>一次工具调用的完整往返</h2>
+<p>以"我要美国 2015 年以来的 GDP 增长"为例：</p>
+<ol class="steps">
+  <li><b class="who prog">程序</b>把三样东西发给 gateway：系统提示词（规则）、聊天记录、<b>工具清单</b>。工具清单就是一份"菜单"，写明每个函数叫什么、做什么、需要哪些参数：
+<pre><code>{"type": "function",
+ "function": {
+   "name": "search_indicator_catalog",
+   "description": "在所选数据库的完整指标列表里搜索并排序",
+   "parameters": {"type": "object",
+                  "properties": {"query": {"type": "string"}},
+                  "required": ["query"]}}}</code></pre></li>
+  <li><b class="who ai">模型</b>看完决定"我需要先搜指标"，于是不回答文字，而是回一张调用单：
+<pre><code>"tool_calls": [{
+  "id": "call_01",
+  "function": {"name": "search_indicator_catalog",
+               "arguments": "{\"query\": \"real GDP growth\"}"}}]</code></pre></li>
+  <li><b class="who prog">程序</b>读到调用单，按名字找到本地对应的 Python 函数，用这些参数执行（这里会调用 <code>imf_datatools.get_dimension_values</code> 并排序）。</li>
+  <li><b class="who prog">程序</b>把执行结果作为一条 <code>role: "tool"</code> 的消息加进对话，再发给模型：
+<pre><code>{"role": "tool", "tool_call_id": "call_01",
+ "content": "{\"candidates\": [{\"code\": \"NGDP_RPCH\", ...}]}"}</code></pre></li>
+  <li><b class="who ai">模型</b>读到结果，再决定下一步：继续调用工具（比如查国家代码、下载数据），或者直接用文字回答用户。</li>
+  <li><b class="who prog">程序</b>重复第 3–5 步，直到模型回的是纯文字，才把答案显示给用户。同事设了上限：最多 32 次工具调用。</li>
+</ol>
+<p>循环的核心代码（简化）：</p>
+<pre><code>while True:
+    response = client.chat.completions.create(
+        model="gpt-5.6-terra", messages=messages,
+        tools=TOOLS, tool_choice="auto")          <span class="c"># 带上工具清单</span>
+    msg = response.choices[0].message
+    messages.append(msg)
+    if not msg.tool_calls:                        <span class="c"># 没有调用单 = 最终回答</span>
+        return msg.content
+    for call in msg.tool_calls:                   <span class="c"># 有调用单 = 本地执行</span>
+        args = json.loads(call.function.arguments)
+        result = _tool_result(call.function.name, args, state)
+        messages.append({"role": "tool", "tool_call_id": call.id,
+                         "content": json.dumps(result)})</code></pre>
+
+<div class="box">
+<p><b>关键点：</b>模型能做什么，完全由程序给它的"菜单"和程序里的 <code>_tool_result</code> 决定。菜单上没有的事，模型做不了；程序也可以在执行前检查参数，不合规就拒绝，比如同事的下载工具会拒绝"没经过搜索验证的代码"。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="n">4</span>"跑 Python 代码"具体是怎么实现的</h2>
+<p>同事的原型里，"运行 Python"分成两种，很容易混在一起：</p>
+
+<div class="scroll"><table>
+<thead><tr><th></th><th>A. 固定工具（如下载数据）</th><th>B. <code>run_python</code>（模型自己写代码）</th></tr></thead>
+<tbody>
+<tr><td><b>代码谁写的</b></td><td>开发者事先写好的函数</td><td>模型临时写的一段代码</td></tr>
+<tr><td><b>模型给什么</b></td><td>只给参数，如数据库、代码、年份</td><td>整段代码文本，放在参数 <code>code</code> 里</td></tr>
+<tr><td><b>什么时候执行</b></td><td>立刻，在循环里自动执行</td><td><b>不自动执行</b>，要用户点按钮</td></tr>
+<tr><td><b>在哪执行</b></td><td>Streamlit 程序本身的进程</td><td>新开一个子进程</td></tr>
+<tr><td><b>结果回给模型吗</b></td><td>回给模型</td><td>不回，只显示给用户</td></tr>
+</tbody></table></div>
+
+<h3>B 的完整流程</h3>
+<ol class="steps">
+  <li><b class="who ai">模型</b>回一张调用单：<code>run_python(code="df.groupby('COUNTRY').mean()")</code>。</li>
+  <li><b class="who prog">程序</b>不执行，只把代码存进待办列表，然后告诉模型"已排队，未执行"：
+<pre><code>pending_actions.append({"kind": "python", "source": code})
+return {"status": "queued_for_workbench_review", "executed": False}</code></pre></li>
+  <li><b class="who user">用户</b>到 Workbench 页面，看到这段代码，勾选"我理解这些命令以我的权限运行"，再点 <b>Run</b>。</li>
+  <li><b class="who prog">程序</b>（<code>code_runner.run_python</code>）开一个新的 Python 进程来跑：
+<pre><code>subprocess.run(
+    [sys.executable, "-I", "-c", PYTHON_RUNNER, "input.csv", "output.csv"],
+    input=code,               <span class="c"># 模型写的代码从标准输入送进去</span>
+    cwd=临时文件夹,            <span class="c"># 每次一个新的临时目录</span>
+    env=精简后的环境变量,      <span class="c"># 不带 API key 等敏感变量</span>
+    timeout=30,               <span class="c"># 超过 30 秒强制停止</span>
+    capture_output=True)      <span class="c"># 收集打印输出和报错</span></code></pre>
+  当前数据表先存成 <code>input.csv</code>，在子进程里叫 <code>df</code>；代码把结果赋给 <code>result</code>，就会写到 <code>output.csv</code>，再读回界面显示。</li>
+</ol>
+<p>这里的 <code>sys.executable</code> 就是正在运行 Streamlit 的那个 Python。它直接启动 Python，不经过任何 shell，所以在没有 bash 的 IMF Windows 上也能用。</p>
+
+<div class="box warn">
+<p><b>为什么不让模型的代码自动运行：</b>子进程能读写你的文件、访问网络，权限和你本人一样，并不是安全沙箱。模型写错代码或理解错需求，后果会直接落在你的电脑上，所以同事要求人工审核再点 Run。我们架构里 v1 不给模型通用的 <code>run_python</code>，也是同样的考虑：下载只走固定的 <code>idata_fetch</code>。</p>
+</div>
+
+<h3>如果以后想让它像 Codex 一样自动跑</h3>
+<p>技术上只差一步：在第 2 步直接调用 <code>code_runner.run_python</code>，把打印输出和报错作为工具结果回给模型。模型看到报错就能改代码再试。Claude Code、Codex 的"自己写代码、自己调试"本质上就是这个循环。是否开放，是安全与方便之间的取舍，不是技术难题。</p>
+
+<!-- ============================================================ -->
+<h2><span class="n">5</span>小结</h2>
+<div class="scroll"><table>
+<thead><tr><th>问题</th><th>答案</th></tr></thead>
+<tbody>
+<tr><td>模型在哪里执行代码？</td><td>任何地方都不执行。它只输出"调用单"。</td></tr>
+<tr><td>谁执行？</td><td>你电脑上的 Python 程序，按调用单去跑本地函数。</td></tr>
+<tr><td>为什么不需要 CLI？</td><td>CLI 里的那个循环，用 <code>openai</code> 包 + 几十行 Python 就能自己写。</td></tr>
+<tr><td>模型怎么知道有哪些工具？</td><td>每次请求都附带一份工具清单（名字、说明、参数格式）。</td></tr>
+<tr><td>怎么控制风险？</td><td>只给需要的工具；执行前在程序里检查参数；能改动电脑的操作需要用户确认。</td></tr>
+</tbody></table></div>
+
+<p class="muted">依据：<code>data_retrieving_published_rl/data_retrieving-github/</code> 中的 <code>imf_openai_helper.py</code>、<code>openai_agent.py</code>（<code>run_openai_agent</code>、<code>_tool_result</code>）、<code>code_runner.py</code>、<code>streamlit_app.py</code>（<code>render_workbench</code>）。代码片段做了简化。</p>
+
+</main>
+</body>
+</html>

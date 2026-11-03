@@ -1,12 +1,13 @@
 # Runtime paths and Python
 
-Read once before running `scripts/fetch_idata.py`, and again only when setup or path
-resolution changes.
+Read once before running any `python -m idata_agent.cli` command or `idata_fetch`, and again
+only when setup or path resolution changes.
 
 ## Locate this skill from the host
 
 Use the path of the `SKILL.md` actually loaded by the host as this skill's root. Resolve
-`scripts/fetch_idata.py` and `scripts/check_environment.py` relative to that root, and execute
+`scripts/check_environment.py` relative to that root, and run `python -m idata_agent.cli` from
+the repository root (the parent of `skills/` and `idata_agent/`). Execute
 using absolute paths — not relative to the user's current working directory. Do not assume a
 particular username, plugin cache version, or host directory. If a script is missing where
 expected, report that rather than inventing a path or writing a replacement script.
@@ -59,7 +60,7 @@ blocked, report the exact blocker to IMF IT rather than working around it.
 
 ## Keep user files in the workspace
 
-Keep the current working directory at the user's own workspace, and resolve `--output` there
-(or honor a supplied absolute path) — never write fetched data into this skill's installed
-directory. If no `--output` is given, `fetch_idata.py` auto-names a file in the current
-directory; report the resulting path to the user.
+Resolve `output_dir` / `output_path` in the user's own workspace (or honor a supplied absolute
+path) — never write fetched data into this skill's installed
+directory. If the spec sets no `output_dir`, `idata_fetch` writes to the user's Downloads folder
+and names the file from the spec (see output-formats.md); report the resulting path to the user.
