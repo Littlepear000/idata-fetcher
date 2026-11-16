@@ -1,0 +1,37 @@
+# Built 2026-11-16 from Country Codes.xlsx and Dummy_20260115.xlsx by scripts/build_country_knowledge.py
+name,weo_code,ifscode
+Advanced Economies,G110,110
+G7,G119,119
+Emerging Market and Middle-Income Economies,G1201,1201
+Emerging Asia,G1515,1515
+Sub-Saharan Africa (SSA): Oil Exporters,G1614,1614
+Sub-Saharan Africa (SSA): Middle-Income,G1626,1626
+Sub-Saharan Africa (SSA): Low-Income,G1627,1627
+Euro Area (EA),G163,163
+Emerging Market and Developing Economies,G200,200
+Low-Income Developing Countries (LIDC),G201,201
+Advanced Asia,G202,202
+Latin America and the Caribbean (LAC),G205,205
+EMDEs by External Financing: Net Creditors,G209,209
+EMDEs by Source of Export Earnings: Diversified,G216,216
+Eastern Caribbean Currency Union (ECCU),G309,309
+Middle East and Central Asia,G400,400
+Middle East and Central Asia: Oil Exporters,G401,401
+Middle East and Central Asia: Oil Importers,G402,402
+Middle East and North Africa (MENA),G406,406
+Emerging and Developing Asia,G505,505
+ASEAN-5,G510,510
+Sub-Saharan Africa (SSA),G603,603
+EMDEs by External Financing: Net Debtors,G606,606
+Heavily Indebted Poor Countries (HIPC),G711,711
+Emerging and Developing Europe,G903,903
+Advanced Europe,G906,906
+North America,G92031,92031
+Caucasus and Central Asia (CCA),G940,940
+Euro Area (EA) – aggregate of member states,G995,995
+European Union (EU),G998,998
+World ,G1,1
+Other Advanced Economies (Advanced Economies excluding G7 and Euro Area countries),G123,123
+"Other Advanced Economies (Advanced Economies excluding U.S., Euro Area countries, and Japan)",G117,117
+Emerging and Developing Asia excl. China and India,G504,504
+"Middle East, North Africa, Afghanistan, and Pakistan",G440,440

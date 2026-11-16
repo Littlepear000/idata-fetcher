@@ -1,0 +1,473 @@
+# Built 2026-11-16 from Country Codes.xlsx and Dummy_20260115.xlsx by scripts/build_country_knowledge.py
+alias,ifscode,iso3,source
+ASEAN-5,510,,dummy
+Advanced Economies,110,,dummy
+Afghanistan,512,AFG,name_to_code
+"Afghanistan, I.S. of",512,AFG,name_to_code
+"Afghanistan, IR",512,AFG,name_to_code
+"Afghanistan, Islamic Republic of",512,AFG,name_to_code
+"Afghanistan,Islamic Republic Of",512,AFG,name_to_code
+Albania,914,ALB,name_to_code
+Algeria,612,DZA,name_to_code
+Andorra,171,AND,name_to_code
+Angola,614,AGO,name_to_code
+Anguilla,312,AIA,name_to_code
+"Anguilla, United Kingdom-British Overseas Territory",312,AIA,name_to_code
+Antigua & Barbuda,311,ATG,name_to_code
+Antigua and Barbuda,311,ATG,name_to_code
+Argentina,213,ARG,name_to_code
+Armenia,911,ARM,name_to_code
+"Armenia, Republic of",911,ARM,name_to_code
+Aruba,314,ABW,name_to_code
+Australia,193,AUS,name_to_code
+Austria,122,AUT,name_to_code
+Azerbaijan,912,AZE,name_to_code
+"Azerbaijan, Republic of",912,AZE,name_to_code
+Bahamas,313,BHS,name_to_code
+Bahamas (the),313,BHS,name_to_code
+"Bahamas, The",313,BHS,name_to_code
+Bahrain,419,BHR,name_to_code
+"Bahrain, Kingdom of",419,BHR,name_to_code
+Bangladesh,513,BGD,name_to_code
+Barbados,316,BRB,name_to_code
+Belarus,913,BLR,name_to_code
+"Belarus, Republic of",913,BLR,name_to_code
+Belgium,124,BEL,name_to_code
+Belize,339,BLZ,name_to_code
+Benin,638,BEN,name_to_code
+Bermuda,,BMU,name_to_code
+Bhutan,514,BTN,name_to_code
+Bolivia,218,BOL,name_to_code
+Bolivia (Plurinational State of),218,BOL,name_to_code
+Bosnia & Herzegovina,963,BIH,name_to_code
+Bosnia And Herzegovina,963,BIH,name_to_code
+Bosnia and Herzegovina,963,BIH,name_to_code
+Bosnia-Herzegovina,963,BIH,name_to_code
+BosniaandHerzegovina,963,BIH,name_to_code
+Botswana,616,BWA,name_to_code
+Brazil,223,BRA,name_to_code
+Brunei,516,BRN,name_to_code
+Brunei Darussalam,516,BRN,name_to_code
+Bulgaria,918,BGR,name_to_code
+Burkina Faso,748,BFA,name_to_code
+Burundi,618,BDI,name_to_code
+Cabo Verde,624,CPV,name_to_code
+Cambodia,522,KHM,name_to_code
+Cameroon,622,CMR,name_to_code
+Canada,156,CAN,name_to_code
+Cape Verde,624,CPV,name_to_code
+Caucasus and Central Asia (CCA),940,,dummy
+Cayman Islands,,CYM,name_to_code
+Central African Rep.,626,CAF,name_to_code
+Central African Republic,626,CAF,name_to_code
+Chad,628,TCD,name_to_code
+Chile,228,CHL,name_to_code
+China,924,CHN,name_to_code
+"China, Hong Kong SAR",532,HKG,name_to_code
+"China, P.R.",924,CHN,name_to_code
+"China, P.R.: Hong Kong",532,HKG,name_to_code
+"China, Taiwan Province of",528,TWN,name_to_code
+Chinese Taipei,528,TWN,name_to_code
+Colombia,233,COL,name_to_code
+Colombian,233,COL,name_to_code
+Comoros,632,COM,name_to_code
+Comoros (the),632,COM,name_to_code
+"Comoros, Union of the",632,COM,name_to_code
+Congo,634,COG,name_to_code
+Congo (Democratic Republic of the),636,COD,name_to_code
+Congo (the Democratic Republic of the),636,COD,name_to_code
+Congo (the),634,COG,name_to_code
+"Congo, DR",636,COD,name_to_code
+"Congo, Dem. Rep.",636,COD,name_to_code
+"Congo, Dem. Rep. of",636,COD,name_to_code
+"Congo, Democratic Republic",636,COD,name_to_code
+"Congo, Democratic Republic of",636,COD,name_to_code
+"Congo, Democratic Republic of the",636,COD,name_to_code
+"Congo, Rep.",634,COG,name_to_code
+"Congo, Rep. of",634,COG,name_to_code
+"Congo, Republic",634,COG,name_to_code
+"Congo, Republic Of",634,COG,name_to_code
+"Congo, Republic of",634,COG,name_to_code
+"Congo,Democratic Republic of",636,COD,name_to_code
+Costa Rica,238,CRI,name_to_code
+CostaRica,238,CRI,name_to_code
+Cote D'Ivoir,662,CIV,name_to_code
+Cote D'ivoire,662,CIV,name_to_code
+Cote d'Ivoire,662,CIV,name_to_code
+Croatia,960,HRV,name_to_code
+"Croatia, Republic of",960,HRV,name_to_code
+Curacao,,CUW,name_to_code
+"Curaçao, Kingdom of the Netherlands",,CUW,name_to_code
+Cyprus,423,CYP,name_to_code
+Czech,935,CZE,name_to_code
+Czech Republic,935,CZE,name_to_code
+Czech Republic (the),935,CZE,name_to_code
+CzechRepublic,935,CZE,name_to_code
+Czechia,935,CZE,name_to_code
+Czechoslovakia,934,,name_to_code
+"Czechoslovakia, former",934,,name_to_code
+Côte d'Ivoire,662,CIV,name_to_code
+Côte d’Ivoire,662,CIV,name_to_code
+CôtedIvoire,662,CIV,name_to_code
+DR Congo,636,COD,name_to_code
+Dem. Rep. Congo,636,COD,name_to_code
+Dem. Rep. of the Congo,636,COD,name_to_code
+Democratic Republic of the Congo,636,COD,name_to_code
+Denmark,128,DNK,name_to_code
+Djibouti,611,DJI,name_to_code
+Dominica,321,DMA,name_to_code
+Dominican Re,243,DOM,name_to_code
+Dominican Rep,243,DOM,name_to_code
+Dominican Rep.,243,DOM,name_to_code
+Dominican Repb.,243,DOM,name_to_code
+Dominican Republic,243,DOM,name_to_code
+Dominican Republic (the),243,DOM,name_to_code
+East Timor,537,TLS,name_to_code
+Eastern Caribbean Currency Union,309,,name_to_code
+Ecuador,248,ECU,name_to_code
+Egypt,469,EGY,name_to_code
+"Egypt, Arab Rep.",469,EGY,name_to_code
+"Egypt, Arab Republic of",469,EGY,name_to_code
+El Salvador,253,SLV,name_to_code
+Emerging Market and Developing Economies,200,,dummy
+Emerging Market and Developing Economies: Low Income Developing Countries,201,,dummy
+Emerging Market and Middle-Income Economies,1201,,dummy
+Emerging and Developing Asia,505,,dummy
+Emerging and Developing Asia excl. China and India,504,,dummy
+Emerging and Developing Europe,903,,dummy
+Equatorial Guinea,642,GNQ,name_to_code
+"Equatorial Guinea, Republic of",642,GNQ,name_to_code
+Eritrea,643,ERI,name_to_code
+"Eritrea, The State of",643,ERI,name_to_code
+Estonia,939,EST,name_to_code
+"Estonia, Republic of",939,EST,name_to_code
+Eswatini,734,SWZ,name_to_code
+Eswatini (Kingdom of),734,SWZ,name_to_code
+"Eswatini, Kingdom of",734,SWZ,name_to_code
+"Eswatini, The Kingdom of",734,SWZ,name_to_code
+Ethiopia,644,ETH,name_to_code
+"Ethiopia, The Federal Democratic Republic of",644,ETH,name_to_code
+Euro area,163,,name_to_code
+Euro area (country),163,,dummy
+European Union,998,,dummy
+FYR Macedonia,962,MKD,name_to_code
+Federated States of Micronesia,868,FSM,name_to_code
+Fiji,819,FJI,name_to_code
+"Fiji, Republic of",819,FJI,name_to_code
+Finland,172,FIN,name_to_code
+France,132,FRA,name_to_code
+G7,119,,dummy
+Gabon,646,GAB,name_to_code
+Gambia,648,GMB,name_to_code
+Gambia (the),648,GMB,name_to_code
+"Gambia, The",648,GMB,name_to_code
+Georgia,915,GEO,name_to_code
+German Democratic Republic,134,DEU,name_to_code
+German Federal Republic,134,DEU,name_to_code
+Germany,134,DEU,name_to_code
+Ghana,652,GHA,name_to_code
+Greece,174,GRC,name_to_code
+Grenada,328,GRD,name_to_code
+Guam,,GUM,name_to_code
+Guatemala,258,GTM,name_to_code
+Guinea,656,GIN,name_to_code
+Guinea Bissau,654,GNB,name_to_code
+Guinea-Bissau,654,GNB,name_to_code
+Guyana,336,GUY,name_to_code
+Haiti,263,HTI,name_to_code
+Heavily Indebted Poor Countries (HIPC),711,,dummy
+Honduras,268,HND,name_to_code
+Hong Kong,532,HKG,name_to_code
+Hong Kong SAR,532,HKG,name_to_code
+"Hong Kong SAR, China",532,HKG,name_to_code
+"Hong Kong Special Administrative Region, People's Republic of China",532,HKG,name_to_code
+HongKongSARChina,532,HKG,name_to_code
+Hungary,944,HUN,name_to_code
+Iceland,176,ISL,name_to_code
+India,534,IND,name_to_code
+Indonesia,536,IDN,name_to_code
+Iran,429,IRN,name_to_code
+Iran (Islamic Republic of),429,IRN,name_to_code
+"Iran, I.R. of",429,IRN,name_to_code
+"Iran, Islamic Rep.",429,IRN,name_to_code
+"Iran, Islamic Republic of",429,IRN,name_to_code
+Iraq,433,IRQ,name_to_code
+Ireland,178,IRL,name_to_code
+Israel,436,ISR,name_to_code
+Italy,136,ITA,name_to_code
+Jamaica,343,JAM,name_to_code
+Japan,158,JPN,name_to_code
+Jordan,439,JOR,name_to_code
+Kazakhstan,916,KAZ,name_to_code
+"Kazakhstan, Republic of",916,KAZ,name_to_code
+Kenya,664,KEN,name_to_code
+Kiribati,826,KIR,name_to_code
+Korea,542,KOR,name_to_code
+Korea (Republic of),542,KOR,name_to_code
+Korea (the Republic of),542,KOR,name_to_code
+"Korea, Democratic People's Republic of",9999,PRK,code_to_name
+"Korea, Rep.",542,KOR,name_to_code
+"Korea, Republic Of",542,KOR,name_to_code
+"Korea, Republic of",542,KOR,name_to_code
+"Korea, South",542,KOR,name_to_code
+Kosovo,967,KOS,name_to_code
+"Kosovo, Republic Of",967,KOS,name_to_code
+Kuwait,443,KWT,name_to_code
+Kyrgyz Republic,917,KGZ,name_to_code
+Kyrgyzstan,917,KGZ,name_to_code
+Lao,544,LAO,name_to_code
+Lao P.D.R.,544,LAO,name_to_code
+Lao PDR,544,LAO,name_to_code
+Lao People's Dem. Rep.,544,LAO,name_to_code
+Lao People's Democratic Republic,544,LAO,name_to_code
+Lao People's Democratic Republic (the),544,LAO,name_to_code
+Lao People’s Dem. Rep.,544,LAO,name_to_code
+"Lao, P.D.R.",544,LAO,name_to_code
+"Lao, PDR",544,LAO,name_to_code
+Laos,544,LAO,name_to_code
+Latin America and the Caribbean,205,,dummy
+Latvia,941,LVA,name_to_code
+"Latvia, Republic of",941,LVA,name_to_code
+Lebanon,446,LBN,name_to_code
+Lesotho,666,LSO,name_to_code
+"Lesotho, Kingdom of",666,LSO,name_to_code
+Liberia,668,LBR,name_to_code
+Libya,672,LBY,name_to_code
+Liechtenstein,147,LIE,name_to_code
+Lithuania,946,LTU,name_to_code
+"Lithuania, Republic of",946,LTU,name_to_code
+Luxembourg,137,LUX,name_to_code
+Macao SAR,546,MAC,name_to_code
+"Macao Special Administrative Region, People's Republic of China",546,MAC,name_to_code
+MacauSARChina,546,MAC,name_to_code
+Macedonia,962,MKD,name_to_code
+Macedonia (Fyr),962,MKD,name_to_code
+Macedonia (the former Yugoslav Republic of),962,MKD,name_to_code
+"Macedonia, F.Y.R.",962,MKD,name_to_code
+"Macedonia, FYR",962,MKD,name_to_code
+"Macedonia, former Yugoslav Republic of",962,MKD,name_to_code
+Madagascar,674,MDG,name_to_code
+"Madagascar, Republic of",674,MDG,name_to_code
+Malawi,676,MWI,name_to_code
+Malaysia,548,MYS,name_to_code
+Maldives,556,MDV,name_to_code
+Mali,678,MLI,name_to_code
+Malta,181,MLT,name_to_code
+Marshall Islands,867,MHL,name_to_code
+"Marshall Islands, Rep. of the",867,MHL,name_to_code
+"Marshall Islands, Republic of the",867,MHL,name_to_code
+Mauritania,682,MRT,name_to_code
+"Mauritania, Islamic Republic of",682,MRT,name_to_code
+Mauritius,684,MUS,name_to_code
+Mexico,273,MEX,name_to_code
+Micronesia,868,FSM,name_to_code
+Micronesia (Federated States of),868,FSM,name_to_code
+"Micronesia, FS",868,FSM,name_to_code
+"Micronesia, Fed. States of",868,FSM,name_to_code
+"Micronesia, Fed. Sts.",868,FSM,name_to_code
+"Micronesia, Federated States of",868,FSM,name_to_code
+Middle East and Central Asia,400,,dummy
+Middle East and North Africa,406,,dummy
+"Middle East, North Africa, Afghanistan, and Pakistan",440,,dummy
+Moldova,921,MDA,name_to_code
+Moldova (Republic of),921,MDA,name_to_code
+Moldova (the Republic of),921,MDA,name_to_code
+"Moldova, Rep. of",921,MDA,name_to_code
+"Moldova, Republic of",921,MDA,name_to_code
+Mongolia,948,MNG,name_to_code
+Montenegro,943,MNE,name_to_code
+"Montenegro, Rep. of",943,MNE,name_to_code
+"Montenegro, Republic of",943,MNE,name_to_code
+Montserrat,351,MSR,name_to_code
+"Montserrat, United Kingdom-British Overseas Territory",351,MSR,name_to_code
+Morocco,686,MAR,name_to_code
+Mozambique,688,MOZ,name_to_code
+"Mozambique, Republic of",688,MOZ,name_to_code
+Myanmar,518,MMR,name_to_code
+N. Macedonia,962,MKD,name_to_code
+Namibia,728,NAM,name_to_code
+Nauru,836,NRU,name_to_code
+Nepal,558,NPL,name_to_code
+Netherlands,138,NLD,name_to_code
+Netherlands (the),138,NLD,name_to_code
+Netherlands Antilles,353,,name_to_code
+"Netherlands, The",138,NLD,name_to_code
+New Zealand,196,NZL,name_to_code
+NewZealand,196,NZL,name_to_code
+Nicaragua,278,NIC,name_to_code
+Niger,692,NER,name_to_code
+Niger (the),692,NER,name_to_code
+Nigeria,694,NGA,name_to_code
+North Macedonia,962,MKD,name_to_code
+"North Macedonia, Republic of",962,MKD,name_to_code
+NorthMacedonia,962,MKD,name_to_code
+Norway,142,NOR,name_to_code
+Oman,449,OMN,name_to_code
+Other Advanced Economies (Advanced Economies excluding G7 and Euro Area countries),123,,dummy
+"Other Advanced Economies (Advanced Economies excluding U.S., Euro Area countries, and Japan)",117,,dummy
+Pakistan,564,PAK,name_to_code
+Palau,565,PLW,name_to_code
+Panama,283,PAN,name_to_code
+Papua N.Guinea,853,PNG,name_to_code
+Papua New Guinea,853,PNG,name_to_code
+PapuaNewGuinea,853,PNG,name_to_code
+Paraguay,288,PRY,name_to_code
+Peru,293,PER,name_to_code
+Philippines,566,PHL,name_to_code
+Philippines (the),566,PHL,name_to_code
+Poland,964,POL,name_to_code
+"Poland, Republic of",964,POL,name_to_code
+Portugal,182,PRT,name_to_code
+Puerto Rico,359,PRI,name_to_code
+Qatar,453,QAT,name_to_code
+Republic of Korea,542,KOR,name_to_code
+Republic of Moldova,921,MDA,name_to_code
+Republic of Vietnam,582,VNM,name_to_code
+Republic of the Sudan,732,SDN,name_to_code
+Romania,968,ROU,name_to_code
+Russia,922,RUS,name_to_code
+Russian Federation,922,RUS,name_to_code
+Russian Federation (the),922,RUS,name_to_code
+RussianFederation,922,RUS,name_to_code
+Rwanda,714,RWA,name_to_code
+Saint Kitts and Nevis,361,KNA,name_to_code
+Saint Lucia,362,LCA,name_to_code
+Saint Vincent & the Grenadines,364,VCT,name_to_code
+Saint Vincent and the Grenadines,364,VCT,name_to_code
+Samoa,862,WSM,name_to_code
+San Marino,135,SMR,name_to_code
+"San Marino, Republic of",135,SMR,name_to_code
+Sao Tome & Principe,716,STP,name_to_code
+Sao Tome and Principe,716,STP,name_to_code
+Sao Tome-Principe,716,STP,name_to_code
+Sao Tomé & Príncipe,716,STP,name_to_code
+Sao Tomé and Príncipe,716,STP,name_to_code
+Saudi,456,SAU,name_to_code
+Saudi Arabia,456,SAU,name_to_code
+SaudiArabia,456,SAU,name_to_code
+Senegal,722,SEN,name_to_code
+Serbia,942,SRB,name_to_code
+Serbia and Montenegro,965,SCG,name_to_code
+"Serbia, Republic of",942,SRB,name_to_code
+"Serbia,Republic Of",942,SRB,name_to_code
+Serbia-Montenegro,965,SCG,name_to_code
+Seychelles,718,SYC,name_to_code
+Sierra Leone,724,SLE,name_to_code
+Singapore,576,SGP,name_to_code
+Sint Maarten (Dutch part),,SXM,name_to_code
+Slovak Rep.,936,SVK,name_to_code
+Slovak Republic,936,SVK,name_to_code
+Slovakia,936,SVK,name_to_code
+Slovenia,961,SVN,name_to_code
+"Slovenia, Republic of",961,SVN,name_to_code
+Solomon Islands,813,SLB,name_to_code
+Somalia,726,SOM,name_to_code
+South Africa,199,ZAF,name_to_code
+South Korea,542,KOR,name_to_code
+South Sudan,733,SSD,name_to_code
+"South Sudan, Republic of",733,SSD,name_to_code
+SouthAfrica,199,ZAF,name_to_code
+SouthKorea,542,KOR,name_to_code
+Spain,184,ESP,name_to_code
+Sri Lanka,524,LKA,name_to_code
+SriLanka,524,LKA,name_to_code
+St. Kitts and Nevis,361,KNA,name_to_code
+St. Lucia,362,LCA,name_to_code
+St. Vincent & The Grenadines,364,VCT,name_to_code
+St. Vincent and Grenadines,364,VCT,name_to_code
+St. Vincent and The Grenadines,364,VCT,name_to_code
+St. Vincent and the Grenadines,364,VCT,name_to_code
+St.Vincent and the Grenadines,364,VCT,name_to_code
+State of Palestine,487,WBG,name_to_code
+StateofPalestineWestBankan,487,WBG,name_to_code
+Sub-Sahara Africa,603,,dummy
+Sudan,732,SDN,name_to_code
+Sudan (the),732,SDN,name_to_code
+Suriname,366,SUR,name_to_code
+Swaziland,734,SWZ,name_to_code
+Sweden,144,SWE,name_to_code
+Switzerland,146,CHE,name_to_code
+Syria,463,SYR,name_to_code
+Syrian Arab Republic,463,SYR,name_to_code
+SyrianArabRepublic,463,SYR,name_to_code
+"SÃ£o TomÃ© and PrÃ­ncipe, Democratic Republic of",716,STP,name_to_code
+São Tomé and Principe,716,STP,name_to_code
+São Tomé and Príncipe,716,STP,name_to_code
+"São Tomé and Príncipe, Democratic Republic of",716,STP,name_to_code
+TFYR of Macedonia,962,MKD,name_to_code
+Taiwan,528,TWN,name_to_code
+Taiwan (Province of China),528,TWN,name_to_code
+Taiwan Province of China,528,TWN,name_to_code
+Tajikistan,923,TJK,name_to_code
+"Tajikistan, Rep. of",923,TJK,name_to_code
+"Tajikistan, Republic of",923,TJK,name_to_code
+Tanzania,738,TZA,name_to_code
+Tanzania (United Republic of),738,TZA,name_to_code
+"Tanzania, United Republic Od",738,TZA,name_to_code
+"Tanzania, United Republic of",738,TZA,name_to_code
+Thailand,578,THA,name_to_code
+The Bahamas,313,BHS,name_to_code
+The Gambia,648,GMB,name_to_code
+The Netherlands,138,NLD,name_to_code
+Timor - Leste,537,TLS,name_to_code
+Timor Leste,537,TLS,name_to_code
+Timor-Leste,537,TLS,name_to_code
+"Timor-Leste, Dem. Rep. of",537,TLS,code_to_name
+"Timor-Leste, Democratic Republic of",537,TLS,name_to_code
+"Timor-Leste, The Democratic Republic of",537,TLS,name_to_code
+Togo,742,TGO,name_to_code
+Tonga,866,TON,name_to_code
+Trinidad & Tobago,369,TTO,name_to_code
+Trinidad and Tobago,369,TTO,name_to_code
+Tunisia,744,TUN,name_to_code
+Turkey,186,TUR,name_to_code
+Turkiye,186,TUR,name_to_code
+Turkmenistan,925,TKM,name_to_code
+"Turkmenistan, Republic of",925,TKM,name_to_code
+Turks and Caicos Islands,,TCA,name_to_code
+Tuvalu,869,TUV,name_to_code
+"TÃ¼rkiye, Republic of",186,TUR,name_to_code
+Türkiye,186,TUR,name_to_code
+"Türkiye, Republic of",186,TUR,name_to_code
+UAE,466,ARE,name_to_code
+UK,112,GBR,name_to_code
+US,111,USA,name_to_code
+Uganda,746,UGA,name_to_code
+Ukraine,926,UKR,name_to_code
+United Arab Emirates,466,ARE,name_to_code
+United Kingdom,112,GBR,name_to_code
+United Kingdom of Great Britain and Northern Irela,112,GBR,name_to_code
+United Kingdom of Great Britain and Northern Ireland,112,GBR,name_to_code
+United Republic of Tanzania,738,TZA,name_to_code
+United States,111,USA,name_to_code
+United States of America,111,USA,name_to_code
+United States of America (the),111,USA,name_to_code
+UnitedArabEmirates,466,ARE,name_to_code
+UnitedKingdom,112,GBR,name_to_code
+UnitedStates,111,USA,name_to_code
+Uruguay,298,URY,name_to_code
+Uzbekistan,927,UZB,name_to_code
+"Uzbekistan, Republic of",927,UZB,name_to_code
+Vanuatu,846,VUT,name_to_code
+Venezuela,299,VEN,name_to_code
+Venezuela (Bolivarian Rep. of),299,VEN,name_to_code
+Venezuela (Bolivarian Republic of),299,VEN,name_to_code
+"Venezuela, RB",299,VEN,name_to_code
+"Venezuela, República Bolivariana de",299,VEN,name_to_code
+Viet Nam,582,VNM,name_to_code
+Vietnam,582,VNM,name_to_code
+West Bank and Gaza,487,WBG,name_to_code
+World,1,,name_to_code
+Yemen,474,YEM,name_to_code
+Yemen Arab Rep,474,YEM,name_to_code
+Yemen Arab Republic,474,YEM,name_to_code
+Yemen P Dem Rep,474,YEM,name_to_code
+Yemen People's Republic,474,YEM,name_to_code
+"Yemen, Arab Republic",474,YEM,name_to_code
+"Yemen, Former P. D. Rep. of",474,YEM,name_to_code
+"Yemen, Rep.",474,YEM,name_to_code
+"Yemen, Rep. of",474,YEM,name_to_code
+"Yemen, Republic of",474,YEM,name_to_code
+"Yemen,Republic Of",474,YEM,name_to_code
+Zambia,754,ZMB,name_to_code
+Zimbabwe,698,ZWE,name_to_code

@@ -1,0 +1,14 @@
+# Team-maintained ticker table for skill bond_yield_10y (Bloomberg generic 10-year government yields).
+# Columns: ticker (as in Bloomberg, spaces allowed), country, iso3, ifscode, active (1/0), verified (yes/no), note.
+# SEED ROWS ARE UNVERIFIED: confirm each ticker returns data from iData IMF.CSF:BBGDL (PX_LAST.D),
+# then set verified=yes. Add rows for further countries; the tool can only fetch countries listed here.
+ticker,country,iso3,ifscode,active,verified,note
+USGG10YR Index,United States,USA,111,1,no,US Treasury generic 10Y
+GDBR10 Index,Germany,DEU,134,1,no,German Bund generic 10Y
+GUKG10 Index,United Kingdom,GBR,112,1,no,UK Gilt generic 10Y
+GJGB10 Index,Japan,JPN,158,1,no,JGB generic 10Y
+GFRN10 Index,France,FRA,132,1,no,French OAT generic 10Y
+GBTPGR10 Index,Italy,ITA,136,1,no,Italian BTP generic 10Y
+GSPG10YR Index,Spain,ESP,184,1,no,Spanish Bono generic 10Y
+GCAN10YR Index,Canada,CAN,156,1,no,Canada generic 10Y
+GACGB10 Index,Australia,AUS,193,1,no,Australia generic 10Y

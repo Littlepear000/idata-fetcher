@@ -1,0 +1,203 @@
+# Built 2026-11-16 from Country Codes.xlsx and Dummy_20260115.xlsx by scripts/build_country_knowledge.py
+ifscode,iso3,iso2,country,income_group,ae,em,lic,in_dummy_file
+512,AFG,AF,Afghanistan,LIC,0,0,1,1
+914,ALB,AL,Albania,EM,0,1,0,1
+612,DZA,DZ,Algeria,EM,0,1,0,1
+171,AND,AD,Andorra,AE,1,0,0,1
+614,AGO,AO,Angola,EM,0,1,0,1
+312,AIA,AI,Anguilla,,0,0,0,1
+311,ATG,AG,Antigua and Barbuda,EM,0,1,0,1
+213,ARG,AR,Argentina,EM,0,1,0,1
+911,ARM,AM,Armenia,EM,0,1,0,1
+314,ABW,AW,Aruba,EM,0,1,0,1
+193,AUS,AU,Australia,AE,1,0,0,1
+122,AUT,AT,Austria,AE,1,0,0,1
+912,AZE,AZ,Azerbaijan,EM,0,1,0,1
+313,BHS,BS,"Bahamas, The",EM,0,1,0,1
+419,BHR,BH,Bahrain,EM,0,1,0,1
+513,BGD,BD,Bangladesh,LIC,0,0,1,1
+316,BRB,BB,Barbados,EM,0,1,0,1
+913,BLR,BY,Belarus,EM,0,1,0,1
+124,BEL,BE,Belgium,AE,1,0,0,1
+339,BLZ,BZ,Belize,EM,0,1,0,1
+638,BEN,BJ,Benin,LIC,0,0,1,1
+514,BTN,BT,Bhutan,LIC,0,0,1,1
+218,BOL,BO,Bolivia,EM,0,1,0,1
+963,BIH,BA,Bosnia and Herzegovina,EM,0,1,0,1
+616,BWA,BW,Botswana,EM,0,1,0,1
+223,BRA,BR,Brazil,EM,0,1,0,1
+516,BRN,BN,Brunei Darussalam,EM,0,1,0,1
+918,BGR,BG,Bulgaria,AE,1,0,0,1
+748,BFA,BF,Burkina Faso,LIC,0,0,1,1
+618,BDI,BI,Burundi,LIC,0,0,1,1
+624,CPV,CV,Cabo Verde,EM,0,1,0,1
+522,KHM,KH,Cambodia,LIC,0,0,1,1
+622,CMR,CM,Cameroon,LIC,0,0,1,1
+156,CAN,CA,Canada,AE,1,0,0,1
+626,CAF,CF,Central African Republic,LIC,0,0,1,1
+628,TCD,TD,Chad,LIC,0,0,1,1
+228,CHL,CL,Chile,EM,0,1,0,1
+924,CHN,CN,China,EM,0,1,0,1
+233,COL,CO,Colombia,EM,0,1,0,1
+632,COM,KM,Comoros,LIC,0,0,1,1
+634,COG,CG,"Congo, Republic of",LIC,0,0,1,1
+238,CRI,CR,Costa Rica,EM,0,1,0,1
+960,HRV,HR,Croatia,AE,1,0,0,1
+423,CYP,CY,Cyprus,AE,1,0,0,1
+935,CZE,CZ,Czech Republic,AE,1,0,0,1
+662,CIV,CI,Côte d'Ivoire,LIC,0,0,1,1
+636,COD,CD,Democratic Republic of the Congo,LIC,0,0,1,1
+128,DNK,DK,Denmark,AE,1,0,0,1
+611,DJI,DJ,Djibouti,LIC,0,0,1,1
+321,DMA,DM,Dominica,EM,0,1,0,1
+243,DOM,DO,Dominican Republic,EM,0,1,0,1
+248,ECU,EC,Ecuador,EM,0,1,0,1
+469,EGY,EG,Egypt,EM,0,1,0,1
+253,SLV,SV,El Salvador,EM,0,1,0,1
+642,GNQ,GQ,Equatorial Guinea,EM,0,1,0,1
+643,ERI,ER,Eritrea,LIC,0,0,1,1
+939,EST,EE,Estonia,AE,1,0,0,1
+734,SWZ,SZ,Eswatini,EM,0,1,0,1
+644,ETH,ET,Ethiopia,LIC,0,0,1,1
+819,FJI,FJ,Fiji,EM,0,1,0,1
+172,FIN,FI,Finland,AE,1,0,0,1
+132,FRA,FR,France,AE,1,0,0,1
+646,GAB,GA,Gabon,EM,0,1,0,1
+648,GMB,GM,"Gambia, The",LIC,0,0,1,1
+915,GEO,GE,Georgia,EM,0,1,0,1
+134,DEU,DE,Germany,AE,1,0,0,1
+652,GHA,GH,Ghana,LIC,0,0,1,1
+174,GRC,GR,Greece,AE,1,0,0,1
+328,GRD,GD,Grenada,EM,0,1,0,1
+258,GTM,GT,Guatemala,EM,0,1,0,1
+656,GIN,GN,Guinea,LIC,0,0,1,1
+654,GNB,GW,Guinea-Bissau,LIC,0,0,1,1
+336,GUY,GY,Guyana,EM,0,1,0,1
+263,HTI,HT,Haiti,LIC,0,0,1,1
+268,HND,HN,Honduras,LIC,0,0,1,1
+532,HKG,HK,Hong Kong SAR,AE,1,0,0,1
+944,HUN,HU,Hungary,EM,0,1,0,1
+176,ISL,IS,Iceland,AE,1,0,0,1
+534,IND,IN,India,EM,0,1,0,1
+536,IDN,ID,Indonesia,EM,0,1,0,1
+429,IRN,IR,Iran,EM,0,1,0,1
+433,IRQ,IQ,Iraq,EM,0,1,0,1
+178,IRL,IE,Ireland,AE,1,0,0,1
+436,ISR,IL,Israel,AE,1,0,0,1
+136,ITA,IT,Italy,AE,1,0,0,1
+343,JAM,JM,Jamaica,EM,0,1,0,1
+158,JPN,JP,Japan,AE,1,0,0,1
+439,JOR,JO,Jordan,EM,0,1,0,1
+916,KAZ,KZ,Kazakhstan,EM,0,1,0,1
+664,KEN,KE,Kenya,LIC,0,0,1,1
+826,KIR,KI,Kiribati,LIC,0,0,1,1
+542,KOR,KR,Korea,AE,1,0,0,1
+9999,PRK,KP,"Korea, Democratic People's Republic of",,0,0,0,0
+967,KOS,KV,Kosovo,EM,0,1,0,1
+443,KWT,KW,Kuwait,EM,0,1,0,1
+917,KGZ,KG,Kyrgyz Republic,LIC,0,0,1,1
+544,LAO,LA,Lao P.D.R.,LIC,0,0,1,1
+941,LVA,LV,Latvia,AE,1,0,0,1
+446,LBN,LB,Lebanon,EM,0,1,0,1
+666,LSO,LS,Lesotho,LIC,0,0,1,1
+668,LBR,LR,Liberia,LIC,0,0,1,1
+672,LBY,LY,Libya,EM,0,1,0,1
+147,LIE,LI,Liechtenstein,AE,1,0,0,1
+946,LTU,LT,Lithuania,AE,1,0,0,1
+137,LUX,LU,Luxembourg,AE,1,0,0,1
+546,MAC,MO,Macao SAR,AE,1,0,0,1
+674,MDG,MG,Madagascar,LIC,0,0,1,1
+676,MWI,MW,Malawi,LIC,0,0,1,1
+548,MYS,MY,Malaysia,EM,0,1,0,1
+556,MDV,MV,Maldives,EM,0,1,0,1
+678,MLI,ML,Mali,LIC,0,0,1,1
+181,MLT,MT,Malta,AE,1,0,0,1
+867,MHL,MH,Marshall Islands,EM,0,1,0,1
+682,MRT,MR,Mauritania,LIC,0,0,1,1
+684,MUS,MU,Mauritius,EM,0,1,0,1
+273,MEX,MX,Mexico,EM,0,1,0,1
+868,FSM,FM,"Micronesia, Fed. States of",EM,0,1,0,1
+921,MDA,MD,Moldova,LIC,0,0,1,1
+948,MNG,MN,Mongolia,EM,0,1,0,1
+943,MNE,ME,"Montenegro, Rep. of",EM,0,1,0,1
+351,MSR,MS,Montserrat,,0,0,0,1
+686,MAR,MA,Morocco,EM,0,1,0,1
+688,MOZ,MZ,Mozambique,LIC,0,0,1,1
+518,MMR,MM,Myanmar,LIC,0,0,1,1
+728,NAM,NA,Namibia,EM,0,1,0,1
+836,NRU,NR,Nauru,EM,0,1,0,1
+558,NPL,NP,Nepal,LIC,0,0,1,1
+138,NLD,NL,Netherlands,AE,1,0,0,1
+196,NZL,NZ,New Zealand,AE,1,0,0,1
+278,NIC,NI,Nicaragua,LIC,0,0,1,1
+692,NER,NE,Niger,LIC,0,0,1,1
+694,NGA,NG,Nigeria,LIC,0,0,1,1
+962,MKD,MK,North Macedonia ,EM,0,1,0,1
+142,NOR,NO,Norway,AE,1,0,0,1
+449,OMN,OM,Oman,EM,0,1,0,1
+564,PAK,PK,Pakistan,EM,0,1,0,1
+565,PLW,PW,Palau,EM,0,1,0,1
+283,PAN,PA,Panama,EM,0,1,0,1
+853,PNG,PG,Papua New Guinea,LIC,0,0,1,1
+288,PRY,PY,Paraguay,EM,0,1,0,1
+293,PER,PE,Peru,EM,0,1,0,1
+566,PHL,PH,Philippines,EM,0,1,0,1
+964,POL,PL,Poland,EM,0,1,0,1
+182,PRT,PT,Portugal,AE,1,0,0,1
+359,PRI,PR,Puerto Rico,AE,1,0,0,1
+453,QAT,QA,Qatar,EM,0,1,0,1
+968,ROU,RO,Romania,EM,0,1,0,1
+922,RUS,RU,Russia,EM,0,1,0,1
+714,RWA,RW,Rwanda,LIC,0,0,1,1
+862,WSM,WS,Samoa,EM,0,1,0,1
+135,SMR,SM,San Marino,AE,1,0,0,1
+456,SAU,SA,Saudi Arabia,EM,0,1,0,1
+722,SEN,SN,Senegal,LIC,0,0,1,1
+942,SRB,RS,Serbia,EM,0,1,0,1
+965,SCG,CS,Serbia and Montenegro,,0,0,0,0
+718,SYC,SC,Seychelles,EM,0,1,0,1
+724,SLE,SL,Sierra Leone,LIC,0,0,1,1
+576,SGP,SG,Singapore,AE,1,0,0,1
+936,SVK,SK,Slovak Republic,AE,1,0,0,1
+961,SVN,SI,Slovenia,AE,1,0,0,1
+813,SLB,SB,Solomon Islands,LIC,0,0,1,1
+726,SOM,SO,Somalia,LIC,0,0,1,1
+199,ZAF,ZA,South Africa,EM,0,1,0,1
+733,SSD,SS,South Sudan,LIC,0,0,1,1
+184,ESP,ES,Spain,AE,1,0,0,1
+524,LKA,LK,Sri Lanka,EM,0,1,0,1
+361,KNA,KN,St. Kitts and Nevis,EM,0,1,0,1
+362,LCA,LC,St. Lucia,EM,0,1,0,1
+364,VCT,VC,St. Vincent and the Grenadines,EM,0,1,0,1
+732,SDN,SD,Sudan,LIC,0,0,1,1
+366,SUR,SR,Suriname,EM,0,1,0,1
+144,SWE,SE,Sweden,AE,1,0,0,1
+146,CHE,CH,Switzerland,AE,1,0,0,1
+463,SYR,SY,Syria,EM,0,1,0,1
+716,STP,ST,São Tomé and Príncipe,LIC,0,0,1,1
+528,TWN,TW,Taiwan Province of China,AE,1,0,0,1
+923,TJK,TJ,Tajikistan,LIC,0,0,1,1
+738,TZA,TZ,Tanzania,LIC,0,0,1,1
+578,THA,TH,Thailand,EM,0,1,0,1
+537,TLS,TL,"Timor-Leste, Dem. Rep. of",LIC,0,0,1,1
+742,TGO,TG,Togo,LIC,0,0,1,1
+866,TON,TO,Tonga,EM,0,1,0,1
+369,TTO,TT,Trinidad and Tobago,EM,0,1,0,1
+744,TUN,TN,Tunisia,EM,0,1,0,1
+925,TKM,TM,Turkmenistan,EM,0,1,0,1
+869,TUV,TV,Tuvalu,EM,0,1,0,1
+186,TUR,TR,Türkiye,EM,0,1,0,1
+746,UGA,UG,Uganda,LIC,0,0,1,1
+926,UKR,UA,Ukraine,EM,0,1,0,1
+466,ARE,AE,United Arab Emirates,EM,0,1,0,1
+112,GBR,GB,United Kingdom,AE,1,0,0,1
+111,USA,US,United States,AE,1,0,0,1
+298,URY,UY,Uruguay,EM,0,1,0,1
+927,UZB,UZ,Uzbekistan,LIC,0,0,1,1
+846,VUT,VU,Vanuatu,EM,0,1,0,1
+299,VEN,VE,Venezuela,EM,0,1,0,1
+582,VNM,VN,Vietnam,EM,0,1,0,1
+487,WBG,WBG,West Bank and Gaza,EM,0,1,0,1
+474,YEM,YE,Yemen,LIC,0,0,1,1
+754,ZMB,ZM,Zambia,LIC,0,0,1,1
+698,ZWE,ZW,Zimbabwe,LIC,0,0,1,1
