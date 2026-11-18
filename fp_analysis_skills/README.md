@@ -52,9 +52,10 @@ fp_analysis_skills/
     aggregate.py            group_statistics, dspb_summary, chart_table
     bloomberg.py            EMBIG / 10Y yields from iData IMF.CSF:BBGDL (PX_LAST.D, chunks of 25)
     countries.py            country lookup (ISO3 / IFS code / name), aggregates, AE / EM / LIC groups
-  knowledge/                country tables built from Country Codes.xlsx + the team dummy file
-  scripts/build_country_knowledge.py   rebuilds knowledge/ when either workbook changes
-  data/                     team ticker tables (EMBIG: to fill; 10Y: unverified seed rows)
+  knowledge/                country tables (Country Codes.xlsx + team dummy file) and the EMBIG ticker table
+  scripts/build_country_knowledge.py   rebuilds the country tables when either workbook changes
+  scripts/build_embig_tickers.py       rebuilds knowledge/embig_tickers.csv from Bloomberg EMBIG tickers.xlsx
+  data/                     10Y ticker table (unverified seed rows)
   integration/analysis_view.py   example Streamlit view for the Analysis workspace
   tests/test_skills.py      offline tests (synthetic data, fake Bloomberg fetcher)
 ```
@@ -97,7 +98,7 @@ from anywhere that has a hand-off.
 ```python
 from fp_analysis.tools import configure
 configure(
-    ticker_paths={"embig_spreads": r"...\Bloomberg EMBIG tickers.xlsx"},  # xlsx (sheet filtered_list) or csv
+    ticker_paths={"bond_yield_10y": r"...\my_10y_tickers.csv"},  # csv, or xlsx with sheet filtered_list
     # fetcher=..., group_expander=..., output_saver=...   defaults: imf_datatools, idata_client.expand_country_group,
     #                                                     dataset_store.save_output
 )
@@ -105,9 +106,10 @@ configure(
 
 ## Before first use
 
-- **EMBIG ticker table** `data/embig_tickers.csv` ships empty. Fill it from the team workbook
-  `Bloomberg EMBIG tickers.xlsx` (sheet `filtered_list`) and add ISO3 codes, or point
-  `configure(ticker_paths=...)` at the workbook.
+- **EMBIG ticker table** `knowledge/embig_tickers.csv` ships filled from the team workbook
+  `Bloomberg EMBIG tickers.xlsx` (sheet `filtered_list`: Global composite + 62 countries, ISO3 and team
+  income group added). Rebuild with `scripts/build_embig_tickers.py` when the workbook changes. Check
+  Vietnam (`ELI GVIT Index`, not a J.P. Morgan code) on first use.
 - **10Y ticker table** has nine unverified Bloomberg generic tickers. Run `fetch_bond_yield_10y` once,
   check every country returns data, then mark `verified=yes`.
 - **WEO codes.** The fiscal skills expect the WEO Live mnemonics `GGEI`, `GGXWDG`, `NGDP`,
@@ -144,9 +146,9 @@ cd fp_analysis_skills
 python -m unittest discover -s tests -v
 ```
 
-27 offline tests: r - g against hand calculation, lag not crossing a missing year, DSPB and the
+29 offline tests: r - g against hand calculation, lag not crossing a missing year, DSPB and the
 outlier rule, weighted means and coverage, requirement checks and user questions, the fiscal-weight
-rule, country lookup and income groups, Bloomberg chunking/averaging/labels/ISO3 filling, and both tool
+rule, country lookup and income groups, Bloomberg chunking/averaging/labels/ISO3 filling, the shipped EMBIG table and group selection, and both tool
 dispatchers (state and hand-off outputs).
 
 ## Adding a skill

@@ -18,7 +18,7 @@ Every number you report comes from a tool result.
 | `dspb` | Analysis | Debt-stabilizing primary balance, gap to actual primary balance; share of countries below it by group | `GGEI`, `GGXWDG`, `NGDP`, `GGXWDG_NGDP`, `GGXONLB_NGDP` from *start - 1*; weight `NGDP_FY_USD` |
 | `group_statistics` | Analysis | Per group/year: mean, weighted mean, median, p10/p25/p75/p90, IQR, coverage | the chosen indicator; weight `NGDP_FY_USD` (fiscal) or `NGDPD` (other) unless `weight: "none"` |
 | `country_groups` | Background | Country codes (ISO3 / IFS / name variants) and the team AE / EM / LIC classification | built in; tool `lookup_team_countries` |
-| `embig_spreads` | Research | EMBIG sovereign spreads (bp), daily Bloomberg averaged to D/W/M/Q/A | team ticker table; tool `fetch_embig_spreads` |
+| `embig_spreads` | Research | EMBIG sovereign spreads (bp), daily Bloomberg averaged to D/W/M/Q/A | team ticker table `knowledge/embig_tickers.csv` (62 countries + Global composite); tool `fetch_embig_spreads` |
 | `bond_yield_10y` | Research | 10-year government bond yields (%), same averaging | team ticker table; tool `fetch_bond_yield_10y` |
 
 Method notes with formulas, limits and pitfalls: `references/<skill_id>.md`. The two Research skills
@@ -34,6 +34,9 @@ run in the Research workspace, not here; if asked for them, say so.
 - **Weights.** Fiscal variables (codes starting with `GG`, and r - g, DSPB, gaps) are weighted by
   fiscal-year nominal GDP in US dollars, `NGDP_FY_USD`. Other indicators are weighted by `NGDPD`.
   `weight: "auto"` (the default) applies this rule.
+- **EMBIG coverage.** The team EMBIG ticker table lists the EMBIG Global composite and 62 countries
+  (48 EM, 10 LIC, 4 AE by the team classification; list in `references/embig_spreads.md`). Countries
+  outside it have no EMBIG spread in the team data; an "EM average" of spreads covers only listed EMs.
 
 ## Workflow
 

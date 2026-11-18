@@ -47,7 +47,7 @@ def configure(*, fetcher: Callable | None = None, ticker_paths: dict[str, str] |
     """Inject dependencies. All optional.
 
     fetcher(database, key, start, end) -> DataFrame   default: imf_datatools.get_idata_data
-    ticker_paths {"embig_spreads": path, "bond_yield_10y": path}   default: ../data/*.csv
+    ticker_paths {"embig_spreads": path, "bond_yield_10y": path}   default: knowledge/embig_tickers.csv, data/bond_yield_10y_tickers.csv
     group_expander(name) -> {"countries": [...]}       default: idata_client.expand_country_group
     output_saver(handoff, output)                     default: dataset_store.save_output
     """
@@ -73,7 +73,7 @@ def _fn(name: str, description: str, properties: dict[str, Any], required: list[
 
 _NULLABLE_STR = {"type": ["string", "null"]}
 _COUNTRIES = {"type": ["array", "null"], "items": {"type": "string"},
-              "description": "Country names, ISO3 or IFS codes; null for every ticker in the team table."}
+              "description": "Country names, ISO3 or IFS codes, or team income groups AE / EM / LIC; null for every ticker in the team table."}
 _FREQ = {"type": "string", "enum": ["D", "W", "M", "Q", "A"],
          "description": "Averaging of daily values: D none, W weekly, M monthly (default), Q quarterly, A annual."}
 
@@ -113,6 +113,19 @@ For group averages of fiscal variables also fetch the fiscal-year nominal GDP in
 NGDP_FY_USD); search the indicator catalog for it and ask the economist if no exact match is found.
 For other indicators fetch NGDPD as weight. If you cannot decide between definitions, ask.
 """
+
+
+def _embig_coverage() -> str:
+    try:
+        return bloomberg.coverage("embig_spreads")
+    except Exception as error:  # the prompt must load even if the table is missing or edited badly
+        return f"unavailable ({error})"
+
+
+RESEARCH_PROMPT_ADDENDUM += (
+    "EMBIG COVERAGE (team ticker table, ISO3/team income group; only these can be fetched, 'Global' is the "
+    f"EMBIG Global composite, not a country): {_embig_coverage()}.\n"
+)
 
 
 def research_tool_result(name: str, arguments: dict[str, Any], state: dict[str, Any]) -> dict[str, Any]:

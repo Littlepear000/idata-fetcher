@@ -216,6 +216,21 @@ class BloombergTests(unittest.TestCase):
         table = bloomberg.load_ticker_table("embig_spreads", path)
         self.assertEqual(table["iso3"].tolist(), ["BRA", ""])
 
+    def test_shipped_embig_table(self):
+        table = bloomberg.load_ticker_table("embig_spreads")              # knowledge/embig_tickers.csv
+        self.assertEqual(len(table), 63)                                   # Global composite + 62 countries
+        self.assertEqual((table["iso3"] == "").sum(), 1)                   # only the Global composite
+        self.assertIn("JPSSGBY__INDEX", set(table["ticker"]))             # padding kept, as in embig.py
+        self.assertEqual(table.set_index("iso3").loc["CIV", "country"], "Côte d'Ivoire")
+
+    def test_select_by_income_group(self):
+        table = bloomberg.load_ticker_table("embig_spreads")
+        lic = bloomberg.select_countries(table, ["LIC"])
+        self.assertIn("GHA", set(lic["iso3"]))
+        self.assertNotIn("BRA", set(lic["iso3"]))
+        both = bloomberg.select_countries(table, ["LIC", "Global"])
+        self.assertEqual(len(both), len(lic) + 1)
+
     def test_unknown_country(self):
         with self.assertRaises(ValueError):
             bloomberg.fetch_series("embig_spreads", "M", ticker_path=self.path, countries=["Atlantis"],

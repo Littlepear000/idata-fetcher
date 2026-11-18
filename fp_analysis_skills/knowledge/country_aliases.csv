@@ -1,4 +1,4 @@
-# Built 2026-11-16 from Country Codes.xlsx and Dummy_20260115.xlsx by scripts/build_country_knowledge.py
+# Built 2026-11-18 from Country Codes.xlsx and Dummy_20260115.xlsx by scripts/build_country_knowledge.py
 alias,ifscode,iso3,source
 ASEAN-5,510,,dummy
 Advanced Economies,110,,dummy

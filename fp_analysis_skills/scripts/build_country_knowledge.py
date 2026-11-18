@@ -1,7 +1,7 @@
 """Rebuild the country background-knowledge tables from the team workbooks.
 
 Inputs (team-maintained, not shipped):
-    Country Codes.xlsx   sheets name_to_code, code_to_name, weo_group_code, FIN Query
+    Country Codes.xlsx   sheets name_to_code, code_to_name, weo_group_code (sheet FIN Query is obsolete, ignored)
     Dummy_<date>.xlsx    one row per country/aggregate, one column per dummy category
 
 Outputs (shipped, read by fp_analysis/countries.py):
@@ -38,7 +38,6 @@ def build(codes_path: Path, dummy_path: Path) -> None:
     code_to_name = _read(codes_path, "code_to_name")
     name_to_code = _read(codes_path, "name_to_code")
     weo_groups = _read(codes_path, "weo_group_code")
-    fin = _read(codes_path, "FIN Query")
     dummy = _read(dummy_path)
 
     code_to_name["ifscode"] = _int(code_to_name["ifscode"])
@@ -63,8 +62,6 @@ def build(codes_path: Path, dummy_path: Path) -> None:
         name_to_code.assign(source="name_to_code")[["country", "ifscode", "iso3", "source"]],
         code_to_name.assign(source="code_to_name")[["country", "ifscode", "iso3", "source"]],
         dummy[["country", "ifscode", "isocode"]].rename(columns={"isocode": "iso3"}).assign(source="dummy"),
-        # FIN Query 'Member Code' is the IMF FIN code, not always ISO3 (e.g. YMN, ROM): keep names only.
-        fin.rename(columns={"Member": "country", "Code": "ifscode"})[["country", "ifscode"]].assign(source="fin_query"),
     ], ignore_index=True).rename(columns={"country": "alias"})
     aliases["ifscode"] = _int(aliases["ifscode"])
     iso_by_ifs = table.dropna(subset=["ifscode"]).set_index("ifscode")["iso3"]

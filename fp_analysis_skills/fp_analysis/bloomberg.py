@@ -18,8 +18,9 @@ BLOOMBERG_DB = "IMF.CSF:BBGDL"
 FIELD = "PX_LAST"
 MAX_TICKERS_PER_QUERY = 25          # iData key segments are chunked at 25 values
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+KNOWLEDGE_DIR = Path(__file__).resolve().parent.parent / "knowledge"
 TICKER_FILES = {
-    "embig_spreads": DATA_DIR / "embig_tickers.csv",
+    "embig_spreads": KNOWLEDGE_DIR / "embig_tickers.csv",       # team list, built by scripts/build_embig_tickers.py
     "bond_yield_10y": DATA_DIR / "bond_yield_10y_tickers.csv",
 }
 SERIES = {
@@ -42,13 +43,18 @@ def default_fetcher(database: str, key: str, start: str | None, end: str | None)
 
 
 def normalize_ticker(ticker: str) -> str:
-    return " ".join(str(ticker).split()).upper().replace(" ", "_")
+    """iData series code of a Bloomberg ticker, exactly as EMBIG/embig.py builds it.
+
+    Every space becomes '_' (inner spaces are NOT collapsed): the team workbook pads 7-letter codes,
+    e.g. 'JPSSGBY  Index' -> 'JPSSGBY__INDEX', and that is the code the team script queries.
+    """
+    return str(ticker).strip().upper().replace(" ", "_")
 
 
 def load_ticker_table(series: str, path: str | Path | None = None) -> pd.DataFrame:
     """Read the ticker table: columns ticker, country, iso3 (optional ifscode, active).
 
-    Accepts the team CSV in ``data/`` or the original Excel workbook
+    Accepts the shipped CSV (``knowledge/embig_tickers.csv``, ``data/bond_yield_10y_tickers.csv``) or the original Excel workbook
     (``Bloomberg EMBIG tickers.xlsx``, sheet ``filtered_list``).
     """
     path = Path(path) if path else TICKER_FILES[series]
@@ -67,6 +73,9 @@ def load_ticker_table(series: str, path: str | Path | None = None) -> pd.DataFra
     if table.empty:
         raise ValueError(f"{path.name} lists no active tickers. Fill it in first (see references/{series}.md).")
     table["ticker"] = table["ticker"].map(normalize_ticker)
+    if "country_name" in table.columns:    # standard name from the team country table, when the build added it
+        named = table["country_name"].str.strip() != ""
+        table.loc[named, "country"] = table.loc[named, "country_name"].str.strip()
     for column in ("iso3", "ifscode"):
         if column not in table.columns:
             table[column] = ""
@@ -91,6 +100,13 @@ def select_countries(table: pd.DataFrame, countries: Iterable[str] | None) -> pd
     wanted = {str(item).strip().casefold() for item in countries if str(item).strip()}
     keys = table[["country", "iso3", "ifscode", "ticker"]].astype(str).apply(lambda col: col.str.casefold())
     mask = keys.isin(wanted).any(axis=1)
+    # Team income groups (AE / EM / LIC) select every listed country of that group.
+    from .countries import lookup
+    groups = {item.upper() for item in wanted} & {"AE", "EM", "LIC"}
+    if groups:
+        income = table["iso3"].map(lambda code: (lookup(code) or {}).get("income_group") if code else None)
+        mask |= income.isin(groups)
+        wanted -= {group.casefold() for group in groups}
     unmatched = sorted(wanted - set(keys.to_numpy().ravel()))
     if unmatched:
         raise ValueError(f"No ticker for {unmatched}. Available countries: {sorted(table['country'])}.")
@@ -197,3 +213,16 @@ def fetch_series(series: str, frequency: str = "M", start_period: str | None = "
         "coverage": {"missing_requested_areas": {"country": missing}} if missing else {},
     }
     return long.sort_values(["COUNTRY", "TIME_PERIOD"], kind="stable").reset_index(drop=True), lineage
+
+
+def coverage(series: str, path: str | Path | None = None) -> str:
+    """One-line list of the countries in a ticker table (ISO3 and income group), for prompts and errors."""
+    table = load_ticker_table(series, path)
+    from .countries import lookup
+    labels = []
+    for row in table.itertuples():
+        record = lookup(row.iso3) if row.iso3 else None
+        group = (record or {}).get("income_group") or ""
+        labels.append(f"{row.iso3}/{group}" if row.iso3 and isinstance(group, str) and group else
+                      (row.iso3 or f"{row.country} (composite)"))
+    return f"{len(table)} tickers: " + ", ".join(labels)

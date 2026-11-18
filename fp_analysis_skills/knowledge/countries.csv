@@ -1,4 +1,4 @@
-# Built 2026-11-16 from Country Codes.xlsx and Dummy_20260115.xlsx by scripts/build_country_knowledge.py
+# Built 2026-11-18 from Country Codes.xlsx and Dummy_20260115.xlsx by scripts/build_country_knowledge.py
 ifscode,iso3,iso2,country,income_group,ae,em,lic,in_dummy_file
 512,AFG,AF,Afghanistan,LIC,0,0,1,1
 914,ALB,AL,Albania,EM,0,1,0,1

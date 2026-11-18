@@ -1,6 +1,0 @@
-# Team-maintained ticker table for skill embig_spreads (J.P. Morgan EMBIG sovereign spreads).
-# Fill it from the team workbook "Bloomberg EMBIG tickers.xlsx", sheet filtered_list (columns ticker, country, ifscode),
-# adding iso3 so the data join WEO Live country codes. The workbook itself can also be passed as ticker path.
-# Keep one row named "Global" (ifscode 1, iso3 empty) for the EMBIG Global composite, as in EMBIG/embig.py.
-# Columns: ticker, country, iso3, ifscode, active (1/0), verified (yes/no), note.
-ticker,country,iso3,ifscode,active,verified,note

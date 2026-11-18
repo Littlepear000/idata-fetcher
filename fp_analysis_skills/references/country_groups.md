@@ -9,7 +9,7 @@ both the Research and the Analysis assistants).
 | File in `knowledge/` | Built from | Content |
 |---|---|---|
 | `countries.csv` | `Country Codes.xlsx` sheet `code_to_name` + the team country dummy file | one row per country: `ifscode` (IMF IFS code), `iso3`, `iso2`, `country`, `income_group` (AE / EM / LIC), dummies `ae`, `em`, `lic`, `in_dummy_file` |
-| `country_aliases.csv` | sheets `name_to_code`, `code_to_name`, `FIN Query`, and dummy-file names | name variant -> `ifscode`, `iso3` (e.g. "Afghanistan, I.S. of" -> 512 / AFG) |
+| `country_aliases.csv` | sheets `name_to_code`, `code_to_name`, and dummy-file names | name variant -> `ifscode`, `iso3` (e.g. "Afghanistan, I.S. of" -> 512 / AFG) |
 | `weo_aggregates.csv` | sheet `weo_group_code` + aggregate rows of the dummy file | WEO aggregate codes (G110, G1201, 1, ...), which are never treated as countries |
 
 Rebuild after either workbook changes:
@@ -17,8 +17,8 @@ Rebuild after either workbook changes:
 
 Codes: **ISO3** is the code WEO Live uses for countries; **IFS code** is the numeric IMF code used in
 the team's files (`ifscode`). The lookup accepts either, or a known name variant, so data identified
-by any of them can be grouped. The FIN Query "Member Code" column is the IMF FIN code, not always ISO3
-(YMN for Yemen, ROM for Romania, YFR for Serbia), so only its names are used.
+by any of them can be grouped.
+The workbook's `FIN Query` sheet is obsolete and is not used.
 
 ## Income groups (team classification, dummy file of 2026-01-15)
 
